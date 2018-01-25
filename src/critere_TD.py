@@ -1,15 +1,16 @@
-def test_all_affect(graph, tests):
+""" Toutes les décisions """
+
+def test_all_decisions(graph, tests):
     """ Test the criteria """
-    assign_nodes = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign']
+    decision_nodes = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if' or graph.adj[i][j]['cmd_type'] == 'while']
     for t in tests:
         # Run the test
         path = browse_graph(t, graph)
-        for e in assign_nodes:
+        for e in decision_nodes:
             if e in path:
-                assign_nodes = [i for i in assign_nodes if i != e]
+                decision_nodes = [i for i in decision_nodes if i != e]
 
-    return(assign_nodes == [])
-
+    return(decision_nodes == [])
 
 def browse_graph(dico, graph):
     """ Execute the test in the dict and returns the path """
@@ -30,6 +31,7 @@ def browse_graph(dico, graph):
 
     return(path)
 
-def CritereTA(graph, tests):
-    var = test_all_affect(graph, tests)
-    print(var)
+def critere_TD(graph, tests):
+    """ Main """
+    var = test_all_decisions(graph, tests)
+    return var
