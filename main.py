@@ -24,5 +24,5 @@ if __name__ == "__main__":
     # tests = [{'x': i} for i in range(-15,15)]
     # print("Critere k-TC: {}".format(critere_k_TC(graph, 10, tests)))
 
-    tests = [{'x': i} for i in range(-15,15)]
+    tests = [{'x': i} for i in range(-100,100)]
     print("Critere i-TB: {}".format(critere_i_TB(graph, 3, tests)))

@@ -26,10 +26,9 @@ def is_i_loop(path, loops, i):
     correct = True
     for loop in loops:
         count = 0
-        for i, char in enumerate(path):
-            if path[i] == loop[0] and path[i + 1] == loop[1]:
+        for j, char in enumerate(path):
+            if path[j] == loop[0] and path[j + 1] == loop[1]:
                 count += 1
-                print(count)
         if count > i:
             correct = correct and False
     
@@ -39,16 +38,13 @@ def test_all_i_loops(graph, i, tests):
     """ Test the criteria """
     max_node = max(list(graph.nodes))
     all_possible_paths = compute_all_paths(graph, 1, limit=2 * i + max_node) # Overkill
-    print(all_possible_paths)
     possible_paths = [path for path in all_possible_paths if path[len(path) - 1] == max_node]
-    print(possible_paths)
     loops = compute_all_loops(graph)
     possible_paths = [path for path in possible_paths if is_i_loop(path, loops, i)]
-    print(possible_paths)
 
     # Suppression des chemins impossibles
-    impossible_paths = [[1, 3, 4, 5] + [7, 5] * k + [8] for k in range((i - 4) // 2 + 1)]
-    impossible_paths += [[1, 2, 4, 5] + [7, 5] * k + [8] for k in range(2, (i - 4) // 2 + 1)]
+    impossible_paths = [[1, 3, 4, 5] + [7, 5] * k + [8] for k in range((2 * i + max_node - 4) // 2 + 1)]
+    impossible_paths += [[1, 2, 4, 5] + [7, 5] * k + [8] for k in range(2, (2 * i + max_node - 4) // 2 + 1)]
 
     possible_paths = [path for path in possible_paths if path not in impossible_paths]
 
@@ -58,7 +54,6 @@ def test_all_i_loops(graph, i, tests):
         if path in possible_paths:
             possible_paths = [p for p in possible_paths if p != path]
 
-    print(possible_paths)
     return(possible_paths == [])
 
 
