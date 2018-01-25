@@ -37,9 +37,9 @@ def is_i_loop(path, loops, i):
 def test_all_i_loops(graph, i, tests):
     """ Test the criteria """
     max_node = max(list(graph.nodes))
-    all_possible_paths = compute_all_paths(graph, 1, limit=2 * i + max_node) # Overkill
-    possible_paths = [path for path in all_possible_paths if path[len(path) - 1] == max_node]
     loops = compute_all_loops(graph)
+    all_possible_paths = compute_all_paths(graph, 1, limit=2 * i * len(loops) + max_node) # Overkill
+    possible_paths = [path for path in all_possible_paths if path[len(path) - 1] == max_node]
     possible_paths = [path for path in possible_paths if is_i_loop(path, loops, i)]
 
     # Suppression des chemins impossibles

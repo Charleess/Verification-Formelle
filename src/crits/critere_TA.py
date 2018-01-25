@@ -2,7 +2,8 @@
 
 def test_all_affect(graph, tests):
     """ Test the criteria """
-    assign_nodes = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign']
+    assign_nodes_fix = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign']
+    assign_nodes = assign_nodes_fix
     for t in tests:
         # Run the test
         path = browse_graph(t, graph)
@@ -10,7 +11,7 @@ def test_all_affect(graph, tests):
             if e in path:
                 assign_nodes = [i for i in assign_nodes if i != e]
 
-    return(assign_nodes == [])
+    return(assign_nodes, assign_nodes_fix)
 
 
 def browse_graph(dico, graph):
@@ -34,5 +35,10 @@ def browse_graph(dico, graph):
 
 def critere_TA(graph, tests):
     """ Main """
-    var = test_all_affect(graph, tests)
-    return var
+    assign_nodes, assign_nodes_fix = test_all_affect(graph, tests)
+
+    try:
+        res = (1 - len(assign_nodes) / len(assign_nodes_fix)) * 100
+        return res
+    except ValueError:
+        return None
