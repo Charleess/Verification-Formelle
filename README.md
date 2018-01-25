@@ -16,6 +16,7 @@ Implémentation d'un model-checker pour différents critères et différents tes
 if x <= 0:
     x = - x
 else:
+    x = 1 - x
 
 if x >= 1:
     while x < 10:

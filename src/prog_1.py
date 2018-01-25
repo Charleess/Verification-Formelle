@@ -12,9 +12,9 @@ def create_graph():
     G.add_edge(4, 5, cond=lambda dic: dic['x'] >= 1, cmd=lambda dic: None, cmd_type='if')
     G.add_edge(4, 6, cond=lambda dic: not(dic['x'] >= 1), cmd=lambda dic: None, cmd_type='if')
     G.add_edge(5, 7, cond=lambda dic: True, cmd=lambda dic: dic.update({'x':1}), cmd_type='assign')
-    G.add_edge(5, 7, cond=lambda dic: dic['x'] < 10, cmd=lambda dic: None, cmd_type='if')
+    G.add_edge(5, 7, cond=lambda dic: dic['x'] < 3, cmd=lambda dic: None, cmd_type='if')
     G.add_edge(7, 5, cond=lambda dic: True, cmd=lambda dic: dic.update({'x': dic['x'] + 1}), cmd_type='assign')
-    G.add_edge(5, 8, cond=lambda dic: dic['x'] >= 10, cmd=lambda dic: None, cmd_type='if')
+    G.add_edge(5, 8, cond=lambda dic: dic['x'] >= 3, cmd=lambda dic: None, cmd_type='if')
     G.add_edge(6, 8, cond=lambda dic: True, cmd=lambda dic: dic.update({'x': 1}), cmd_type='assign')
 
     return G
