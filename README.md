@@ -1,25 +1,49 @@
-A partir du code source, on construit un AST, parsable par l'ordinateur. L'AST est déjà un graphe avec des règles.
-On le construit récursivement. 
-Le CFG est une autre représentation de l'AST. C'est juste une représentation plus simple pour un programme.
-Les numéros des bulles dans le graphe sont grosso modo les lignes dans le code. 
-Permet de trouver des erreurs sans exécuter le programme. Par exemple, on peut maintenir une liste des variables définies à un certain moment et trouver des chemins sur le graphe où certaines variables ne sont pas définies quand on arrive à la fin.
+# Vérification Formelle
 
-Dans le projet on va partir directement du CFG. Il va nous servir à:
-1. On se donne un CFG, des critères (propriétés sur le graphe) de tests et des tests. Un test est un dictionnaire variables/valeurs. 
+## Introduction
 
-Exemple: "Est-ce qu'on est passé par tous les noeuds assignation ?".
+Implémentation d'un model-checker pour différents critères et différents tests sur la base d'un graphe de contrôle. Les graphes sont représentés par des instances de `networkx`
 
-Il faut maintenir en permanence l'endroit où on est dans le CFG et l'état courant. A la fin du test, on donne le chemin qui a été parcouru. Un test est donc un jeu de données, et on l'éxécute en regardant les points qu'on a parcouru. 
+```bash
+> conda install --yes --file requirements.txt
+```
 
-Exemple du "Toutes les assignations": On va créer une liste avec tous les sommets par lesquels il faut qu'on passe, et on va faire tourner des tests. A chaque test, on enlève les sommets par lesquels on est passé de la liste. Le but du jeu est d'arriver à une liste vide.
+## Critères
 
-Etapes:
-- On prend un jeu de variables assignées
-- On exécute le programme
-- On regarde ce qui se passe
+### (TA) Toutes les affectations
 
-Deuxième partie du tp, on veut générer un jeu de test qui fait passer un critère. On prend chaque élément de la liste de noeuds par lesquels on veut passer, et on cherche un chemin qui marche. Ca devient tricky lorsque on les enchaîne. Le but est donc de générer automatiquement les contraintes que l'on veut utiliser.
+Un jeu de test T pour Prog satisfait le critère "toutes les affectations", dénoté TA, si toutes les étiquettes de Labels(Prog,assign) apparaissent au moins une fois dans l’un des chemins d’exécution associés aux données de test σ de T.
 
+### (TD) Toutes les décisions
 
+Un jeu de test T pour Prog satisfait le critère "toutes les décisions", dénoté TD, si toutes les arêtes (u, v) avec Label(u) ∈ Labels(Prog, {if, while}) sont empruntées au moins une fois dans l’un des chemins d’exécution associés aux données de test σ de T.
 
-On précise la variable qu'on va utiliser
+### (k-TC) Tous les k-Chemins
+
+Un jeu de test T pour Prog satisfait le critère "tous les k- chemins", dénoté k-TC, si pour tous les chemins
+ρ de Prog de longueur inférieure ou égale à k, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
+
+### (i-TB)
+
+Un jeu de test T pour Prog satisfait le critère "toutes les i-boucles", dénoté i-TB, avec i ∈ N si pour tous les chemins ρ pour lesquels les boucles while sont exécutées au plus i fois, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
+
+### (TDef)
+
+Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}, il existe un chemin ρ de la forme μ1.lu.μ2.l′.μ3 avec l = Label(u), X ∈ ref(l′) et ∀l ∈ Labels(μ), X ̸∈ ref(l) pour lequel il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
+
+### (TU)
+
+Un jeu de test T pour Prog satisfait le critère "toutes les utilisations", dénoté TU, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, pour tous les nœudes v CG(Prog) avec X ∈ ref(v) tel qu’il existe un chemin partiel μ de u à v, sans redéfinition de X, c’est-à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ2.l′.μ3 avec lu = Label(u) et lv = Label(v), et ∀l ∈ Labels(μ2), X ̸∈ ref(l). pour lequel il existe une donnée de test σ de T vérifiant path(P rog, σ) = ρ.
+
+### (TDU)
+
+Pour deux nœuds u et v, on appelle chemin simple partiel de u à v un chemin u.μ.v de u à v qui passe au plus une fois dans chacune des boucles intermédiaires.
+
+Un jeu de test T pour Prog satisfait le critère "tous les DU-chemins", dénoté TDU, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, pour tous les nœuds v CG(Prog) avec X ∈ ref(v), pour tous les chemins simples partiels μ de u à v, sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), il existe une donnée de test σ de T vérifiant path(P rog, σ) = ρ.
+
+### (TC)
+
+Les expressions booléennes utilisées dans les instructions "if" ou "while" sont appelées des décisions. Ces décisions peuvent être décomposées en expressions élémentaires, appelées conditions. Par exemple, la décision
+(X ≤0)∧(X =Y +1) est constituée des deux conditions (X ≤ 0) et (X = Y + 1).
+
+Un jeu de test T pour P rog satisfait le critère "toutes conditions", dénoté TC, si pour toutes les conditions c de Prog, il existe une donnée de tests σc qui exécute c à vrai, et une donnée de tests σ¬c qui exécute c à faux.
