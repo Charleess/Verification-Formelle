@@ -23,8 +23,8 @@ def test_all_k_paths(graph, k, tests):
     possible_paths = [path for path in all_possible_paths if path[len(path) - 1] == max_node]
 
     # Suppression des chemins impossibles
-    impossible_paths = [[1, 3, 4, 5] + [7, 5] * i + [8] for i in range((k - 4) // 2)]
-    impossible_paths += [[1, 2, 4, 5] + [7, 5] * i + [8] for i in range((k - 4) // 2)]
+    impossible_paths = [[1, 3, 4, 5] + [7, 5] * i + [8] for i in range((k - 4) // 2 + 1)]
+    impossible_paths += [[1, 2, 4, 5] + [7, 5] * i + [8] for i in range(2, (k - 4) // 2 + 1)]
 
     possible_paths = [path for path in possible_paths if path not in impossible_paths]
 
