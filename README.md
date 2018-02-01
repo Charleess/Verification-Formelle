@@ -25,6 +25,8 @@ else:
     x = x + 1
 ```
 
+Pour des raisons de simplification, nous avons parfois ajouté des bouts de code spécifiques à ce programme, notamment pour retirer des chemins impossibles mathématiquement. Ces morceaux sont clairement précisés dans le code, et ne sont pas réplicables à d'autres programmes.
+
 ## Critères
 
 ### (TA) Toutes les affectations
@@ -44,9 +46,13 @@ Un jeu de test T pour Prog satisfait le critère "tous les k- chemins", dénot
 
 Un jeu de test T pour Prog satisfait le critère "toutes les i-boucles", dénoté i-TB, avec i ∈ N si pour tous les chemins ρ pour lesquels les boucles while sont exécutées au plus i fois, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
 
+> Pour des raisons de simplicité, on utilisera la fonction `simple_loops` de NetworkX, une implémentation d'une fonction similaire ayant déjà été faite dans le projet, et le temps étant plutôt rare.
+
 ### (TDef) Toutes les définitions
 
 Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}, il existe un chemin ρ de la forme μ1.lu.μ2.l′.μ3 avec l = Label(u), X ∈ ref(l′) et ∀l ∈ Labels(μ), X ̸∈ ref(l) pour lequel il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
+
+> Dans la pratique, ce critère ne pourra jamais être rempli à 100%. En effet, les dernières étapes d'un programme sont toujours une assignation avant de retourner la valeur finale. On ne peut pas donc utiliser ces assignations puisque elles donnent directement sur le noeud final. On acceptera donc une valeur de `75%` pour ce critère.
 
 ### (TU) Toutes les utilisations
 
@@ -64,3 +70,8 @@ Les expressions booléennes utilisées dans les instructions "if" ou "while" s
 (X ≤0)∧(X =Y +1) est constituée des deux conditions (X ≤ 0) et (X = Y + 1).
 
 Un jeu de test T pour P rog satisfait le critère "toutes conditions", dénoté TC, si pour toutes les conditions c de Prog, il existe une donnée de tests σc qui exécute c à vrai, et une donnée de tests σ¬c qui exécute c à faux.
+
+
+Karim: Expliquer l'histoire du mu2
+
+Enoncé: c'est def et par ref dans le 4.6 et lv au lieu de l'
