@@ -4,8 +4,7 @@ from ..common import browse_graph
 def test_all_decisions(graph, tests):
     """ Test the criteria """
     decision_nodes = [
-        i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if' \
-            or graph.adj[i][j]['cmd_type'] == 'while'
+        i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if'
     ] # Get all the decision nodes
     decision_nodes_fix = decision_nodes # For the stats
     for t in tests:

@@ -1,6 +1,7 @@
 from inspect import getsource
 import networkx as nx
 import re
+from copy import copy
 
 def subfinder(mylist, pattern):
     """ Little helper to find patterns in lists """
@@ -19,7 +20,7 @@ def find_vars(graph, node):
         cmd_vars_read = [] # Variables referenced for definition
         for child in children:
             code = getsource(graph.adj[node][child]["cmd"]) # Get the source code of the lambda function
-            code_list = code.split("cond=")[1].strip().split("cmd=") # Parse the code to get the variable names
+            code_list = code.split("dec=")[1].strip().split("cmd=") # Parse the code to get the variable names
             cond_string, cmd_string = code_list
 
             cond_vars += [var.replace("'", "") for var in re.findall(r"\'[A-Za-z0-9]\'+", cond_string)] # RegEx
@@ -108,10 +109,67 @@ def browse_graph(dico, graph):
         not_found = True
         while not_found:
             v = successors[i] # Find successors of the node
-            if graph.adj[tmp_node][v]['cond'](dico):
+            if get_decision(graph.adj[tmp_node][v]['dec'], dico):
                 graph.adj[tmp_node][v]['cmd'](dico) # Execute the command
                 tmp_node = v # Switch node
                 path += [v] # Update path
+                not_found = False # Break out of the loop
+            i += 1
+
+    return (path)
+
+def get_decision(decision_tuple, dico):
+    """
+    Get the decision from the conditions 
+    decision_tuple = 
+    ([
+        lambda dic: dic['x'] >= 1,
+        lambda dic: dic['y'] <= 2
+    ], lambda a, b: a and b)
+    """
+    cond_outcome = []
+    for e in decision_tuple[0]:
+        cond_outcome.append(e(dico))
+    
+    if len(cond_outcome) == 0: # Lambda has to be evaluated on something
+        cond_outcome = [True]
+
+    result = decision_tuple[1](*cond_outcome)
+
+    return result
+
+def get_condition_values(decision_tuple, dico):
+    """ Get the values for every condition """
+    cond_outcome = []
+    for e in decision_tuple[0]:
+        cond_outcome.append(e(dico))
+
+    return cond_outcome # Return a list of booleans corresponding to each condition
+
+def shallow_copy(dic):
+    """ Returns a shallow copy of a dictionnary """
+    res = {}
+    for key in dic.keys():
+        res[key] = copy(dic[key])
+    return res
+
+def browse_graph_verbose(dico, graph):
+    """ Execute the test in the dict and returns the path + dic values """
+    tmp_node = 1 # Starting node
+    path = {1: [shallow_copy(dico)]} # Initial path
+    while tmp_node != max(graph.nodes): # While we still have nodes to visit
+        successors = list(graph.successors(tmp_node)) # Children
+        i = 0
+        not_found = True
+        while not_found:
+            v = successors[i] # Find successors of the node
+            if get_decision(graph.adj[tmp_node][v]['dec'], dico):
+                graph.adj[tmp_node][v]['cmd'](dico) # Execute the command
+                tmp_node = v # Switch node
+                try:
+                    path[v].append(shallow_copy(dico)) # Update path
+                except KeyError:
+                    path[v] = [shallow_copy(dico)]
                 not_found = False # Break out of the loop
             i += 1
 

@@ -1,39 +1,6 @@
 """ Toutes les i-boucles """
 import networkx as nx
-from ..common import subfinder
-
-def compute_all_loops(graph):
-    """ Get all the possible loops """
-    loops = list(nx.simple_cycles(graph))
-    # Returns a list of loops with no repetition
-    return loops
-
-def compute_all_paths(graph, i, limit):
-    """ Get all the possible paths """
-    # Recursive algorithm, iterate on all the children of a node, until the limit is reached
-    # The limit prevents the infinite loops
-    if limit < 0:
-        return [[]]
-    elif limit == 0:
-        return [[i]]
-    elif list(graph.successors(i)) == []:
-        return [[i]]
-    else:
-        paths = []
-        for k in graph.successors(i):
-            paths_k = compute_all_paths(graph, k, limit=limit - 1)
-            for path_k in paths_k:
-                paths += [[i] + path_k]
-        return paths
-
-def is_i_loop(path, loops, i):
-    """ Check whether a path contains i or less iterations of one of the loops """
-    tst = [] # List of the sub-patterns
-    for loop in loops:
-        tst.append(len(subfinder(path, loop)))
-    correct = (max(tst) <= i) # Check that no loop is repeated more than i times
-    
-    return correct # Boolean
+from ..common import subfinder, browse_graph, is_i_loop, compute_all_loops, compute_all_paths
 
 def test_all_i_loops(graph, i, tests):
     """ Test the criteria """
@@ -60,26 +27,6 @@ def test_all_i_loops(graph, i, tests):
             possible_paths = [p for p in possible_paths if p != path] # Remove the path from the list
 
     return(possible_paths, total)
-
-
-def browse_graph(dico, graph):
-    """ Execute the test in the dict and returns the path """
-    tmp_node = 1 # Starting node
-    path = [1] # Initial path
-    while tmp_node != max(graph.nodes):
-        successors = list(graph.successors(tmp_node))
-        i = 0
-        not_found = True
-        while not_found:
-            v = successors[i] # Find successors of the node
-            if graph.adj[tmp_node][v]['cond'](dico):
-                graph.adj[tmp_node][v]['cmd'](dico) # Execute the command
-                tmp_node = v
-                path += [v]
-                not_found = False
-            i += 1
-
-    return(path)
 
 def critere_i_TB(graph, i, tests):
     """ Main """
