@@ -48,10 +48,10 @@ def test_all_usages(graph, tests):
 
 def critere_TU(graph, tests):
     """ Main """
-    ref_node_list, successes = test_all_usages(graph, tests)
+    def_node_list, successes = test_all_usages(graph, tests)
 
     try:
-        res = (len(successes) / len(ref_node_list)) * 100
-        return res, list(set(ref_node_list) - set(successes))
+        res = (len(successes) / len(def_node_list)) * 100
+        return res, list(set(def_node_list) - set(successes))
     except ValueError:
         return None
