@@ -95,9 +95,19 @@ Un jeu de test T pour P rog satisfait le critère "toutes conditions", dénote
 
 #### Notre implémentation TC
 
-
-Karim: Expliquer l'histoire du mu2
+# TODO
 
 Enoncé: c'est def et par ref dans le 4.6 et lv au lieu de l'
 
 Expliquer que les regex marchent tout le temps car les variables référencées seront toujours entre guillemets
+
+Trouver pour chaque critère des tests qui passent et des tests qui ne passent pas
+Comparer les critères entre eux au sens de "plus fort que"
+Faire un gros blabla sur les mécanismes d'analyse pour chaque critère
+
+Ajouter l'ensemble non couvert dans les print des critères
+
+1. récupérer les variables
+1. Créer un domaine pour chaque variable
+1. Restreindre le domaine avec le critère de test
+1. Calculer une solution

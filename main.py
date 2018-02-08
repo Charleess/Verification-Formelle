@@ -16,6 +16,10 @@ if __name__ == "__main__":
 
     #tests = [dico_test_1, dico_test_2, dico_test_3, dico_test_4]
 
+    ####################
+    # CRITERES DE TEST #
+    ####################
+
     tests = [{'x': i} for i in range(-15,15)]
     print("Critere TA: {} %".format(math.floor(critere_TA(graph, tests))))
 
@@ -39,3 +43,9 @@ if __name__ == "__main__":
 
     tests = [{'x': i} for i in range(-3, 3)]
     print("Critere TC: {} %".format(math.floor(critere_TC(graph, tests))))
+
+    #######################
+    # GENERATION DE TESTS #
+    #######################
+
+    
