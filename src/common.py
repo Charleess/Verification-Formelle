@@ -1,7 +1,8 @@
-from inspect import getsource
-import networkx as nx
+""" Helpers and Project-Wide functions used in the different modules """
 import re
+from inspect import getsource
 from copy import copy
+import networkx as nx
 
 def subfinder(mylist, pattern):
     """ Little helper to find patterns in lists """

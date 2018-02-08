@@ -97,8 +97,6 @@ Un jeu de test T pour P rog satisfait le critère "toutes conditions", dénote
 
 # TODO
 
-Enoncé: c'est def et par ref dans le 4.6 et lv au lieu de l'
-
 Expliquer que les regex marchent tout le temps car les variables référencées seront toujours entre guillemets
 
 Trouver pour chaque critère des tests qui passent et des tests qui ne passent pas
