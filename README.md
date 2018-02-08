@@ -41,6 +41,14 @@ Un jeu de test T pour Prog satisfait le critère "toutes les décisions", dé
 
 #### Notre implémentation TD
 
+L'idée est de parcourir le graphe à la recherche d'arêtes de décision. 
+
+La décision est le résultat de l'évaluation logique des différentes conditions contenues sur l'arête. On peut donc montrer que dans un graphe de contrôle, deux arêtes de décision partant du même noeud sont forcément antinomiques l'une de l'autre. ainsi, le critère "Toutes les décision" peut se ramener à "Pour chaque arête de décision, il existe au moins un chemin de test qui passe par cette arête.
+
+On parcourt donc cotre graphe en stockant les arêtes portant une condition, on génère l'ensemble des chenins pour nos tests. Il suffit alors de chercher dans les chemins si on a effectivement toutes les arêtes de décision.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes de décision effectivement emprunté.
+
 ### (k-TC) Tous les k-Chemins
 
 Un jeu de test T pour Prog satisfait le critère "tous les k- chemins", dénoté k-TC, si pour tous les chemins
@@ -53,9 +61,16 @@ Un jeu de test T pour Prog satisfait le critère "tous les k- chemins", dénot
 Un jeu de test T pour Prog satisfait le critère "toutes les i-boucles", dénoté i-TB, avec i ∈ N si pour tous les chemins ρ pour lesquels les boucles while sont exécutées au plus i fois, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
 
 > Pour des raisons de simplicité, on utilisera la fonction `simple_loops` de NetworkX, une implémentation d'une fonction similaire ayant déjà été faite dans le projet, et le temps étant plutôt rare.
+> Ce critère contient certaines implémentations spécifiques au programme utilisé. Nous avons mis *en dur* certaines modifications à apporter aux chemins possibles pour retirer ceux qui sont mathématiquement impossibles.
 > Nous n'avons pas implémenté les boucles imbriquées pour des raisons de temps
 
 #### Notre implémentation i-TB
+
+L'idée de ce test sera de générer tous les chemins possibles allant de l'entrée à la sortie -- c'est à dire représentant bien un exécution du programme -- et de vérifier que les chemins de test incluent bien ces chemins.
+
+On calcule donc la taille maximale d'un graphe comportant des i-boucles, et on utilise ce résultat comme borne supérieure pour notre générateur de chemin. On retire ensuite les chemins mathématiquement impossibles, non représentatifs pour le test, et on génère les chemins de test pour comparer.
+
+*Pourcentage de couverture :* 
 
 ### (TDef) Toutes les définitions
 

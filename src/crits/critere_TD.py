@@ -12,7 +12,7 @@ def test_all_decisions(graph, tests):
         # Run the test
         path = browse_graph(t, graph) # Get the path associated with the test
         for i, j in decision_edges:
-            if subfinder(path, [i, j]):
+            if subfinder(path, [i, j]): # Can we find the edge in the path ?
                 decision_edges = [(k, l) for k, l in decision_edges if (k, l) != (i, j)] # Remove the node if it's ok
 
     return(decision_edges, decision_edges_fix)
@@ -23,6 +23,6 @@ def critere_TD(graph, tests):
 
     try:
         res = (1 - len(decision_edges) / len(decision_edges_fix)) * 100
-        return res # Stats
+        return res, decision_edges # Stats
     except ValueError:
         return None

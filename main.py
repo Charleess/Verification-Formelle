@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(
     description="Symbolic Execution Engine for Structural Testing"
 )
 parser.add_argument("-v", "--version", action="version", version="%(prog)s v1.0")
-parser.add_argument("-ra", "--run-all", action="store_true", help="Run all the tests")
+parser.add_argument("-ra", "--run-all", action="store_true", help="Run all the tests", default=True)
 
 args = parser.parse_args()
 
@@ -22,29 +22,63 @@ if __name__ == "__main__":
     # CRITERES DE TEST #
     ####################
     if args.run_all:
-        tests = [{'x': i} for i in range(-15,15)]
-        print("Critere TA: {} %".format(math.floor(critere_TA(graph, tests))))
+        print("Démarrage...")
 
         tests = [{'x': i} for i in range(-15,15)]
-        print("Critere TD: {} %".format(math.floor(critere_TD(graph, tests))))
+        percentage, non_covered_elems = critere_TA(graph, tests)
+        print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-15,15)]
-        print("Critere k-TC: {} %".format(math.floor(critere_k_TC(graph, 10, tests))))
+        percentage, non_covered_elems = critere_TD(graph, tests)
+        print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
+
+        tests = [{'x': i} for i in range(-15,15)]
+        percentage, non_covered_elems = critere_k_TC(graph, 10, tests)
+        print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-100,100)]
-        print("Critere i-TB: {} %".format(math.floor(critere_i_TB(graph, 3, tests))))
+        percentage, non_covered_elems = critere_i_TB(graph, 1, tests)
+        print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-20, 20)]
-        print("Critere TDef: {} %".format(math.floor(critere_TDef(graph, tests))))
+        percentage, non_covered_elems = critere_TDef(graph, tests)
+        print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-20, 20)]
-        print("Critere TU: {} %".format(math.floor(critere_TU(graph, tests))))
+        percentage, non_covered_elems = critere_TU(graph, tests)
+        print("Critere TU: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-20, 20)]
-        print("Critere TDU: {} %".format(math.floor(critere_TDU(graph, tests))))
+        percentage, non_covered_elems = critere_TDU(graph, tests)
+        print("Critere TDU: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-3, 3)]
-        print("Critere TC: {} %".format(math.floor(critere_TC(graph, tests))))
+        percentage, non_covered_elems = critere_TC(graph, tests)
+        print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     #######################
     # GENERATION DE TESTS #

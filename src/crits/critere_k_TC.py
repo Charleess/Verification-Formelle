@@ -31,6 +31,6 @@ def critere_k_TC(graph, k, tests):
     
     try:
         res = (1 - (len(remaining_paths) / total)) * 100 # Get the percentage
-        return res
+        return res, remaining_paths
     except ValueError:
         return None

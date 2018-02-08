@@ -20,6 +20,6 @@ def critere_TA(graph, tests):
 
     try:
         res = (1 - len(assign_nodes) / len(assign_nodes_fix)) * 100
-        return res # Stats
+        return res, assign_nodes # Stats
     except ValueError:
         return None

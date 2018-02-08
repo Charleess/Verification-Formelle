@@ -54,6 +54,6 @@ def critere_TDU(graph, tests):
 
     try:
         res = (len(successes) / len(ref_node_list)) * 100
-        return res
+        return res, list(set(ref_node_list) - set(successes))
     except ValueError:
         return None

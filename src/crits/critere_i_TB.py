@@ -34,6 +34,6 @@ def critere_i_TB(graph, i, tests):
 
     try:
         res = (1 - (len(remaining_paths) / total)) * 100 # Get the percentage
-        return res
+        return res, remaining_paths
     except ValueError:
         return None

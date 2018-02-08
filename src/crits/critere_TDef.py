@@ -38,6 +38,6 @@ def critere_TDef(graph, tests):
 
     try:
         res = (len(successes) / len(def_node_list)) * 100
-        return res # Statistic
+        return res, list(set(def_node_list) - set(successes)) # Statistic
     except ValueError:
         return None
