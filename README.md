@@ -67,6 +67,43 @@ G.add_edge(
 
 * Nous avons choisi de laisser de côté le développement d'un algorithme capable de lire directement un programme écrit en python, d'en calculer l'AST et d'en déduire le graphe de contrôle. Nous partirons directement d'un CFG écrit sous la forme d'une instance de graphe `networkX`.
 
+### Fonctions de parcours et Helpers
+
+Nous avons défini séparément des fonctions redondantes dans notre projet, elles sont toutes situées dans le fichier `common.py`.
+
+#### Subfinder
+
+Cette fonction nous permet de trouver un motif dans une liste. Elle est utilisée lors du traitement des boucles par exemple, pour trouver rapidement les motifs qui se répètent, ou pour identifier su une arête à été utilisée dans un chemin.
+
+#### Shallow Copy
+
+Python travaille par référence dans certains cas, ce qui nécéssite de devoir créer des copies séparée d'objets. Cans certains cas, le module `copy` ne suffit pas, par exemple pour une liste dans un dictionnaire. Si on copie le dictionnaire avec la fonction `copy`, alors un `list.append()` sur la copie agira quand même sur la fonction originale. Pour pallier à ce problème, on implémente la copie propre d'un dictionnaire.
+
+#### Find Vars, Def et Ref
+
+Ces trois fonctions sont au coeur de certains critères. La première est un parser permettant de récupérer le code source des fonctions lambda que l'on utilise dans le CFG, et d'en sortir les informations sur les variables référencées ou définies dans ces fonctions. Pour ce faire, on lit le code source et on extrait les informations avec des expressions régulières.
+
+Def et Ref sont un sucr syntaxique pour accéder plus rapidement aux informations que l'on désire.
+
+#### Loops et Paths
+
+On dispose ensuite d'un ensemble de fonctions pour aider dans l'analyse des boucles et des chemins
+
+* **Compute All Loops :** Cherche toutes les boucles simples présentes dans un graphe. Retourne une liste des chemins correspondants.
+* **Is I Loop :** Utilise le détecteur de motifs pour chercher si `i` itérations d'un boucle spécifiée sont présentes dans un chemin passé en argument.
+* **Compute All Paths :** Fonction récursive prenant en argument une limite et calculant en BFS tous les chemins de longueur inférieure à la limite, boucles comprises
+* **Simple Paths :** Utilise les fonctions précédentes pour retourner une liste de tous les chemins simples, c'est à dire comportant au maximum une itération de chaque boucle.
+
+#### Conditions et Décisions
+
+**Decision :** Exécute une décision contenue dans une arête avec les données contenues dans le dictionnaire passé en argument. Retourne un booléen corespondant à l'application de la fonction d'évaluation aux résultats des différentes conditions.
+
+**Conditions :** Retourne une liste contenant le résultat de l'évaluation de chaque condition avec les données passées en argument.
+
+#### Browsers
+
+Les dernières fonctions sont les deux algorithmes de parcours de graphe que nous utilisons pour calculer les chemins empruntés par le programme lors de l'évaluation d'une donnée de test. Le premier fait un parcours simple, et stocke à chaque fois le noeud par lequel il est passé dans une liste retournée à la fin. Le second est légèrement plus lent, et maintient un dictionnaire contenant les noeuds qui ont été traversé, et pour chaque noeud, une liste des valeurs de toutes les variables en sortant du noeud.
+
 ## Critères
 
 ### (TA) Toutes les affectations
@@ -159,17 +196,22 @@ Un jeu de test T pour P rog satisfait le critère "toutes conditions", dénote
 
 Ce critère est une version plus complexe du critère TD. Au lieu de regarder simplement si la décision totale est bien empruntée dans les deux cas `True` et `False`, on va décomposer les décisions en conditions élémentaires, et vérifier que chacune de ces conditions est bien évaluée une fois à `True` et une fois à `False`.
 
-Notre graphe de contrôle stocke les décisions sous la forme d'une liste de 
+Notre graphe de contrôle stocke les décisions sous la forme d'une liste de conditions, ainsi qu'une fonction faisant le lien entre ces différentes conditions. L'idée sera donc de récupérer l'ensemble des arêtes de condition, et d'extraire de ces arêtes les conditions à tester.
+
+L'étape de parcours du graphe avec des tests est légèrement différente pour ce critère, en effet, il ne faut pas stocker uniquement le chemin que l'on a emprunté, mais aussi les valeurs des différentes variables à chaque étape. On va donc changer notre parcours, et au lieu de renvoyer une liste des noeuds par lesquels on est passé, on va renvoyé un dictionnaire avec en clé les noeuds, et en valeur une liste des valeurs des variables lorsque on est passé par ce noeud. Notons qu'on peut passer plusiseurs fois par le même noeud avec des valeurs différentes.
+
+Pour chaque condition, on va alors regarder dans le résultat du parcours de graphe si on l'a évalué à vrai et à faux au moins une fois. Le cas échéant, on la retire des conditions à tester pour les étapes suivantes.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de conditions à tester qui n'ont pas été évaluées à vrai et à faux au moins une fois.
+
+## Relations entre les critères
+
+## Génération de tests
 
 # TODO
 
-Expliquer que les regex marchent tout le temps car les variables référencées seront toujours entre guillemets
-
 Trouver pour chaque critère des tests qui passent et des tests qui ne passent pas
 Comparer les critères entre eux au sens de "plus fort que"
-Faire un gros blabla sur les mécanismes d'analyse pour chaque critère
-
-Ajouter l'ensemble non couvert dans les print des critères
 
 1. récupérer les variables
 1. Créer un domaine pour chaque variable

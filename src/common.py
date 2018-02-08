@@ -4,6 +4,10 @@ from inspect import getsource
 from copy import copy
 import networkx as nx
 
+###########
+# Helpers #
+###########
+
 def subfinder(mylist, pattern):
     """ Little helper to find patterns in lists """
     matches = []
@@ -11,6 +15,17 @@ def subfinder(mylist, pattern):
         if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
             matches.append(pattern) # Add the pattern to the list
     return matches
+
+def shallow_copy(dic):
+    """ Returns a shallow copy of a dictionnary """
+    res = {}
+    for key in dic.keys():
+        res[key] = copy(dic[key])
+    return res
+
+#############
+# Def / Ref #
+#############
 
 def find_vars(graph, node):
     """ Returns the list of all the vars used on edges of type (node, child) """
@@ -47,11 +62,25 @@ def Def(graph, node):
     cond_vars, cmd_vars_assign, cmd_vars_read = find_vars(graph, node)
     return list(set(cmd_vars_assign))
 
+###################
+# Loops and paths #
+###################
+
 def compute_all_loops(graph):
     """ Get all the possible loops """
     loops = list(nx.simple_cycles(graph))
     # As explained, this function is used for time saving, and could be reimplemented
     return loops
+
+def is_i_loop(path, loops, i):
+    """ Test if the path contains i iterations of each loop maximum """
+    tst = []
+    for loop in loops:
+        tst.append(len(subfinder(path, loop))) # Append the max number of iterations of this loop
+
+    correct = (max(tst) <= i) # Check if no loop is repeated more than i times
+
+    return correct
 
 def compute_all_paths(graph, i, limit):
     """ Get all the possible paths """
@@ -68,16 +97,6 @@ def compute_all_paths(graph, i, limit):
             for path_k in paths_k:
                 paths += [[i] + path_k] # Create paths by recursion, one layer at a time
         return paths
-
-def is_i_loop(path, loops, i):
-    """ Test if the path contains i iterations of each loop maximum """
-    tst = []
-    for loop in loops:
-        tst.append(len(subfinder(path, loop))) # Append the max number of iterations of this loop
-
-    correct = (max(tst) <= i) # Check if no loop is repeated more than i times
-
-    return correct
 
 def simple_paths(graph, u, v):
     """ Returns the simple paths aka with 1-loops """
@@ -100,24 +119,9 @@ def simple_paths(graph, u, v):
 
     return [list(a) for a in list(set(tuple(path) for path in result_paths))]
 
-def browse_graph(dico, graph):
-    """ Execute the test in the dict and returns the path """
-    tmp_node = 1 # Starting node
-    path = [1] # Initial path
-    while tmp_node != max(graph.nodes): # While we still have nodes to visit
-        successors = list(graph.successors(tmp_node)) # Children
-        i = 0
-        not_found = True
-        while not_found:
-            v = successors[i] # Find successors of the node
-            if get_decision(graph.adj[tmp_node][v]['dec'], dico):
-                graph.adj[tmp_node][v]['cmd'](dico) # Execute the command
-                tmp_node = v # Switch node
-                path += [v] # Update path
-                not_found = False # Break out of the loop
-            i += 1
-
-    return (path)
+##########################
+# Conditions / Décisions #
+##########################
 
 def get_decision(decision_tuple, dico):
     """
@@ -147,12 +151,28 @@ def get_condition_values(decision_tuple, dico):
 
     return cond_outcome # Return a list of booleans corresponding to each condition
 
-def shallow_copy(dic):
-    """ Returns a shallow copy of a dictionnary """
-    res = {}
-    for key in dic.keys():
-        res[key] = copy(dic[key])
-    return res
+############
+# Browsers #
+############
+
+def browse_graph(dico, graph):
+    """ Execute the test in the dict and returns the path """
+    tmp_node = 1 # Starting node
+    path = [1] # Initial path
+    while tmp_node != max(graph.nodes): # While we still have nodes to visit
+        successors = list(graph.successors(tmp_node)) # Children
+        i = 0
+        not_found = True
+        while not_found:
+            v = successors[i] # Find successors of the node
+            if get_decision(graph.adj[tmp_node][v]['dec'], dico):
+                graph.adj[tmp_node][v]['cmd'](dico) # Execute the command
+                tmp_node = v # Switch node
+                path += [v] # Update path
+                not_found = False # Break out of the loop
+            i += 1
+
+    return (path)
 
 def browse_graph_verbose(dico, graph):
     """ Execute the test in the dict and returns the path + dic values """
