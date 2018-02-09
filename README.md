@@ -1,4 +1,4 @@
-# Vérification Formelle
+﻿# Vérification Formelle
 
 ## Introduction
 
@@ -31,7 +31,7 @@ Pour des raisons de simplification, nous avons parfois ajouté des bouts de code
 
 ### Structure du graphe de contrôle
 
-Les graphes de contôle sont implémentés comme des instances de `networkX`, une bibliothèque de graphes pour python. Les difdérentes informations seront portées par les arêtes, les noeuds n'ayant qu'un identifiant. Chaque arête est de la forme suivante:
+Les graphes de contôle sont implémentés comme des instances de `networkX`, une bibliothèque de graphes pour python. Les différentes informations seront portées par les arêtes, les noeuds n'ayant qu'un identifiant. Chaque arête est de la forme suivante:
 
 ```python
 """ Arête de décision """
@@ -42,7 +42,7 @@ G.add_edge(
         [ # Liste des conditions
             lambda dic: dic['x'] <= 0
         ],
-        lambda a: a # Fonction logique de lien entre les conditions
+        lambda a: a # Fonction logique de lien entre les conditions élémentaires
     ),
     cmd=lambda dic: None, # Commande
     cmd_type='if' # Type de commande => Décision
@@ -112,6 +112,12 @@ Un jeu de test T pour Prog satisfait le critère "toutes les affectations", de�
 
 #### Notre implémentation TA
 
+L'idée est de passer par chaque arête d'affectation au moins une fois avec le jeu de test.
+
+Nous avons cherché, parmi les arêtes du graphe, lesquelles étaient étiquetées "assign", puis nous avons généré les chemins induits par chaque ensemble de valeurs initiales du jeu de test, et nous avons cherché les arêtes dans les chemins générés.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes d'affectation effectivement empruntées.
+
 ### (TD) Toutes les décisions
 
 Un jeu de test T pour Prog satisfait le critère "toutes les décisions", dénoté TD, si toutes les arêtes (u, v) avec Label(u) ∈ Labels(Prog, {if, while}) sont empruntées au moins une fois dans l’un des chemins d’exécution associés aux données de test σ de T.
@@ -124,14 +130,23 @@ La décision est le résultat de l'évaluation logique des différentes conditio
 
 On parcourt donc cotre graphe en stockant les arêtes portant une condition, on génère l'ensemble des chenins pour nos tests. Il suffit alors de chercher dans les chemins si on a effectivement toutes les arêtes de décision.
 
-*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes de décision effectivement emprunté.
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes de décision effectivement empruntées.
 
 ### (k-TC) Tous les k-Chemins
 
 Un jeu de test T pour Prog satisfait le critère "tous les k- chemins", dénoté k-TC, si pour tous les chemins
 ρ de Prog de longueur inférieure ou égale à k, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
 
+> Pour procéder, nous avons défini une fonction récursive permettant de calculer les chemins de longueur inférieure ou égale à k, et nous avons comparé ces chemins à ceux générés par le jeu de test.
+
 #### Notre implémentation k-TC
+
+L'idée est de générer tous les chemins possibles de longueur inférieure ou égale à k, et de vérifier que les chemins du jeu de test incluent bien ces chemins.
+
+Nous avons défini une fonction récursive qui ajoute au noeud courant les chemins de longueur inférieure ou égale à k-1 de chacun de ses successeurs.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de chemins de longueur inférieure ou égale à k ayant été parcourus par rapport au nombre total de ces chemins.
+
 
 ### (i-TB) Toutes les i-boucles
 
@@ -139,7 +154,7 @@ Un jeu de test T pour Prog satisfait le critère "toutes les i-boucles", déno
 
 > Pour des raisons de simplicité, on utilisera la fonction `simple_loops` de NetworkX, une implémentation d'une fonction similaire ayant déjà été faite dans le projet, et le temps étant plutôt rare.
 > Ce critère contient certaines implémentations spécifiques au programme utilisé. Nous avons mis *en dur* certaines modifications à apporter aux chemins possibles pour retirer ceux qui sont mathématiquement impossibles.
-> Nous n'avons pas implémenté les boucles imbriquées pour des raisons de temps
+> Nous n'avons pas tenu compte des boucles imbriquées pour des raisons de temps.
 
 #### Notre implémentation i-TB
 
@@ -147,17 +162,21 @@ L'idée de ce test sera de générer tous les chemins possibles allant de l'entr
 
 On calcule donc la taille maximale d'un graphe comportant des i-boucles, et on utilise ce résultat comme borne supérieure pour notre générateur de chemin. On retire ensuite les chemins mathématiquement impossibles, non représentatifs pour le test, et on génère les chemins de test pour comparer.
 
-*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de chemins n'ayant pas été parcourus par rapport au nombre de chemins théoriques à parcourir.
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de chemins ayant été parcourus par rapport au nombre de chemins théoriques à parcourir.
 
 ### (TDef) Toutes les définitions
 
 Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}, il existe un chemin ρ de la forme μ1.lu.μ2.l′.μ3 avec l = Label(u), X ∈ ref(l′) et ∀l ∈ Labels(μ), X ̸∈ ref(l) pour lequel il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
 
-> Dans la pratique, ce critère ne pourra jamais être rempli à 100%. En effet, les dernières étapes d'un programme sont toujours une assignation avant de retourner la valeur finale. On ne peut pas donc utiliser ces assignations puisque elles donnent directement sur le noeud final. On acceptera donc une valeur de `75%` pour ce critère.
+> Dans la pratique, on ne peut garantir que ce critère soit rempli à 100% pour certains programmes. En effet, il peut y avoir des assignations sur les dernières arêtes, comme dans le programme donné à titre d'exemple. On ne peut pas donc utiliser ces assignations puisque elles donnent directement sur le noeud final. On acceptera donc une valeur de `75%` pour ce critère.
 
 #### Notre implémentation TDef
 
-**Expliquer l'equivalence entre les deux sens, si on itère sur les noeuds et ensuite les variables, ou les variables et ensuite les noeuds. Pour TD, TU, TDU**
+On commence par chercher dans le graphe tous les noeuds qui définissent une variable. Pour cela, nous avons implémenté une méthode Def retournant les variables définies en une arête. Ensuite, nous cherchons dans les chemins générés par le jeu de test les noeuds précédents. Lorsque nous en trouvons un, nous cherchons dans la suite du chemin un noeud qui référence la variable. Lorsque nous trouvons un tel noeud, nous retirons le noeud de définition de l'ensemble à couvrir.
+
+Remarque : Notons qu'un noeud ne peut définir qu'une seule variable. Ainsi, même si la formulation de l'énoncé est sous la forme "pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}", il est équivalent d'itérer d'abord sur tous les noeuds u de CG(Prog) avec def(u) non vide puis sur les variables (en l'occurence la variable) définies en ce noeud. En fait, il y a une bijection entre l'ensemble des couples (variable définie, noeud définissant la variable) et (noeud définissant une variable, variable qu'il définit), puisqu'il suffit de permuter les deux éléments. Cet ordre sera également utilisé dans les critères suivants.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes ayant défini une variable dont au moins un chemin de test passe par cette arête et utilise cette variable, par rapport au nombre d'arêtes définissant une variable.
 
 ### (TU) Toutes les utilisations
 
@@ -173,7 +192,7 @@ Après avoir exécuté cet algorithme sur tous les noeuds de définition, on obt
 
 **NB:** Ce critère ne peut pas être satisfait à 100% de part sa définition. En effet, un programme termine forcément par une assignation dans une des arêtes. Ainsi, cette assignation n'a pas de noeud fils, et ne pourra jamais être utilisée. C'est pourquoi dans notre cas, le test termine avec une couverture de 75%, car le noeud 6 donne directement sur le noeud 8, qui n'a pas d'enfants puisque il est la fin du programme.
 
-*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de noeuds ayant défini une variable qui n'a pas été utilisée par rapport au nombre de définitions/utilisations
+*Pourcentage de couverture :* L'ensemble à couvrir ici est l'ensemble des couples d'arêtes u où u définit une variable. Pour chacune de ces arêtes, le test de couverture porte sur les arêtes v utilisant la variable sans redéfinition préalable. Le pourcentage de couverture de ce test est la proportion de arêtes de définition qui sont couvertes par un des chemins de test, au sens du critère précédent.
 
 ### (TDU) Tous les DU-chemins
 
@@ -181,9 +200,15 @@ Pour deux nœuds u et v, on appelle chemin simple partiel de u à v un chemin u
 
 Un jeu de test T pour Prog satisfait le critère "tous les DU-chemins", dénoté TDU, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, pour tous les nœuds v CG(Prog) avec X ∈ ref(v), pour tous les chemins simples partiels μ de u à v, sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), il existe une donnée de test σ de T vérifiant path(P rog, σ) = ρ.
 
-> L'idée est la même que pour le critère TU, à la différence que cette fois, pour un couple de noeuds, on vérifie que tous les chemins possibles sont couverts par les chemins de test.
+> L'idée est la même que pour le critère TU, à la différence que cette fois, pour un couple de noeuds (définition et première utilisation après cette définition), on vérifie que tous les chemins possibles sont couverts par les chemins de test.
 
 #### Notre implémentation TDU
+
+L'implémentation est très similaire à la précédente, mais elle a cela de différent que, au lieu de tester des couples d'arêtes u, v, on teste pour ces couples chaque chemin simple reliant u à v sans redéfinition.
+
+Le test est le même que précédemment, nous stockons pour chaque arête de définition, toutes les premières arêtes d'utilisation et une liste de chemins simples les reliant. Si on retrouve tous ces chemins simples pour toutes les arêtes d'utilisation dans les chemins de test, nous retirons l'arête de définition des arêtes à couvrir.
+
+*Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de noeuds de définition qui n'ont pas été évaluées à vrai et à faux au moins une fois.
 
 ### (TC) Toutes les conditions
 
@@ -206,12 +231,26 @@ Pour chaque condition, on va alors regarder dans le résultat du parcours de gra
 
 ## Relations entre les critères
 
+Le critère "tous les DU-chemins" est plus fort que le critère "toutes les utilisations", qui lui même serait plus fort que le critère "toutes les définitions" si sa formulation était la suivante :
+"Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, tels qu'il existe un nœuds v CG(Prog) avec X ∈ ref(v) sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), pour lequel il existe une donnée de test σ de T vérifiant path(P rog, σ) = ρ."
+Enfin, le critère "toutes les définitions" tel que donné dans l'énoncé est plus fort que le critère "toutes les affectations", puisqu'un chemin passant par un noeud de définition puis par un noeud d'utilisation passe par le noeud de définition.
+
+Le critère "toutes les décisions" n'est pas plus fort que le critère "toutes les 1-boucles", car il ne suffit pas de s'assurer que l'on passe par une boucle while pour affirmer que tous les chemins passant au plus 1 fois par la boucle while sont couverts. Il existe des programmes qui ne peuvent vérifier cette condition
+On peut en exhiber un exemple :
+ si x < 0 :
+    x = x - 3
+ tant que x < 0
+    x : x+1
+
+
 ## Génération de tests
+
+Pour la génération de tests, nous avons raisonné en termes d'ensembles. Pour chaque critère, nous déduisons un ensemble à couvrir (ensemble de noeuds, de chemins, ou d'expressions booléennes) et nous calculons l'ensemble des éléments couverts par chaque assignation de variables initiale. Pour calculer cette couverture, il est suggéré de calculer le prédicat de chemin pour les chemins à couvrir. Néanmoins, les méthodes développées pour tester les critères permettent de déduire cette couverture. En effet, pour chaque affectation, elles testent des égalités entre les chemins à couvrir et le chemin découlant de l'exécution du programme avec l'affectation. Ces égalités sont équivalentes à des satisfiabilités de formules booléennes par une assignation de variables. Une fois déterminés les éléments couverts par chaque affectation de variable, nous cherchons la couverture la plus petite de l'ensemble des valeurs à couvrir. Pour cela, il n'y a pas de résolution exacte car c'est un problème NP-complet, mais nous utilisons la méthode gloutonne, qui en fournit une approximation à un facteur logarithmique près. Ainsi nous déterminons un jeu de tests avec le soucis de sa taille.
 
 # TODO
 
 Trouver pour chaque critère des tests qui passent et des tests qui ne passent pas
-Comparer les critères entre eux au sens de "plus fort que"
+Comparer les critères entre eux au sens de "plus fort que" en illustrant par des programmes pour l'infirmation de certains "plus fort que"
 
 1. récupérer les variables
 1. Créer un domaine pour chaque variable
