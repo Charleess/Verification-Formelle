@@ -3,9 +3,9 @@ from ..common import browse_graph
 
 def elems_to_cover_TA(graph):
     """ Returns a list of the elements to cover for the criterion """
-    assign_nodes_fix = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign'] # Get all the assign nodes
+    assign_nodes = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign'] # Get all the assign nodes
     
-    return assign_nodes_fix
+    return assign_nodes
 
 def test_all_affect(graph, tests, elems_to_cover):
     """ Test the criteria """

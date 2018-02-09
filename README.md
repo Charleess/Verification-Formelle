@@ -63,9 +63,14 @@ G.add_edge(
 )
 ```
 
+Cette architecture permet une grande flexibilité dans la manipulation des graphes de contrôle. Cependant elle a un défault majeur que nous avons accepté. En effet, les commandes sont des fonctions lambda qui modifient directement le dictionnaire qui est passé en entrée. Lorsque on évalue un test, on modifie directement les valeurs des variables contenues dans le test au lieu de renvoyer un nouvel objet contenant les valeurs finales.
+
+Ce défaut doit être pris en compte en permanence, notamment par l'ajout à certains endroit du code de fonctions de copie plus ou moins élaborées. Python utilise souvent des définitions par référence, et il faut faire attention à ne pas modifier l'objet initial lorsque on évalue un chemin.
+
 ### Simplifications
 
 * Nous avons choisi de laisser de côté le développement d'un algorithme capable de lire directement un programme écrit en python, d'en calculer l'AST et d'en déduire le graphe de contrôle. Nous partirons directement d'un CFG écrit sous la forme d'une instance de graphe `networkX`.
+* Dans la partie de génération des tests, une difficulté était de déterminer les variables utilisées dans le programme, mais non définies localement. Il faut chercher dans le graphe l'ensemble des variables qui sont référencées sans avoir été définies précédemment. Pour gagner du temps, nous avons laissé cette partie "en dur" dans le code. Les premières lignes de la fonction `generate_tests` contiennent ces informations.
 
 ### Fonctions de parcours et Helpers
 

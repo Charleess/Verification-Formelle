@@ -1,7 +1,15 @@
 """ Toutes les definitions """
 from src.common import Def, Ref, browse_graph
 
-def test_all_definitions(graph, tests):
+def elems_to_cover_TDef(graph):
+    """ Returns a list of the elements to cover for the criterion """
+    def_nodes_list = [
+        node for node in graph.nodes if Def(graph, node) != []
+    ] # All the nodes that define something
+
+    return def_nodes_list
+
+def test_all_definitions(graph, tests, elems_to_cover):
     """ Test the criteria """
     tests_paths = [] # List of all the paths associated with the tests
     for t in tests:
@@ -9,9 +17,7 @@ def test_all_definitions(graph, tests):
         path = browse_graph(t, graph) # Get the path associated with the test
         tests_paths.append(path)
 
-    def_node_list = [
-        node for node in graph.nodes if Def(graph, node) != []
-    ] # All the nodes that define something
+    def_node_list = elems_to_cover
 
     successes = []
     for node in def_node_list: # This node defines a variable
@@ -32,9 +38,9 @@ def test_all_definitions(graph, tests):
 
     return(def_node_list, successes)
 
-def critere_TDef(graph, tests):
+def critere_TDef(graph, tests, elems_to_cover):
     """ Main """
-    def_node_list, successes = test_all_definitions(graph, tests)
+    def_node_list, successes = test_all_definitions(graph, tests, elems_to_cover)
 
     try:
         res = (len(successes) / len(def_node_list)) * 100
