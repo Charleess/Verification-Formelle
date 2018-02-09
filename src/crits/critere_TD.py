@@ -1,7 +1,10 @@
 """ Toutes les décisions """
 from ..common import browse_graph, subfinder
 
-def test_all_decisions(graph, tests):
+def elems_to_cover_TD(graph):
+    
+
+def test_all_decisions(graph, tests, elems_to_cover):
     """ Test the criteria """
     decision_edges = [
         (i, j) for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if'

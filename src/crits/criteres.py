@@ -1,4 +1,4 @@
-from .critere_TA import critere_TA
+from .critere_TA import critere_TA, elems_to_cover_TA
 from .critere_TD import critere_TD
 from .critere_k_TC import critere_k_TC
 from .critere_i_TB import critere_i_TB

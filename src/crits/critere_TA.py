@@ -1,10 +1,16 @@
 """ Toutes les affectations """
 from ..common import browse_graph
 
-def test_all_affect(graph, tests):
-    """ Test the criteria """
+def elems_to_cover_TA(graph):
+    """ Returns a list of the elements to cover for the criterion """
     assign_nodes_fix = [i for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'assign'] # Get all the assign nodes
-    assign_nodes = assign_nodes_fix # Duplicate for the stats
+    
+    return assign_nodes_fix
+
+def test_all_affect(graph, tests, elems_to_cover):
+    """ Test the criteria """
+    assign_nodes = elems_to_cover
+    assign_nodes_fix = assign_nodes # Duplicate for the stats
     for t in tests:
         # Run the test
         path = browse_graph(t, graph) # Get the path associated with the test
@@ -14,9 +20,9 @@ def test_all_affect(graph, tests):
 
     return(assign_nodes, assign_nodes_fix)
 
-def critere_TA(graph, tests):
+def critere_TA(graph, tests, elems_to_cover):
     """ Main """
-    assign_nodes, assign_nodes_fix = test_all_affect(graph, tests)
+    assign_nodes, assign_nodes_fix = test_all_affect(graph, tests, elems_to_cover)
 
     try:
         res = (1 - len(assign_nodes) / len(assign_nodes_fix)) * 100
