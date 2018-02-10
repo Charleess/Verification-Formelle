@@ -33,7 +33,7 @@ def elems_to_cover_TU(graph):
     return possible_paths_dico
 
 
-def get_elems_to_cover_idx(possible_paths_dico):
+def get_elems_to_cover_idx_TU(possible_paths_dico):
     elems_idx = []
     for u in possible_paths_dico.keys():
         for v in possible_paths_dico[u].keys():
@@ -49,11 +49,10 @@ def test_all_usages(graph, tests, elems_to_cover):
         tests_paths.append(path)
 
     possible_paths_dico = elems_to_cover
-    elems_to_cover_idx = get_elems_to_cover_idx(possible_paths_dico)
+    elems_to_cover_idx = get_elems_to_cover_idx_TU(possible_paths_dico)
     elems_to_cover_idx_fix = elems_to_cover_idx
 
     for u in possible_paths_dico.keys(): # We can now check the criterion
-        #all_ok = True
         for v in possible_paths_dico[u].keys():
             all_ok_v = False
             for subpath in possible_paths_dico[u][v]:
@@ -62,9 +61,6 @@ def test_all_usages(graph, tests, elems_to_cover):
                         all_ok_v = True
             if all_ok_v:
                 elems_to_cover_idx = [[a, b] for [a, b] in elems_to_cover_idx if [a, b] !=[u, v]]
-            #all_ok = all_ok and all_ok_v # AT LEAST and not FOR ALL
-        #if all_ok:
-         #   successes.append(u)
 
     return(elems_to_cover_idx_fix, elems_to_cover_idx)
 

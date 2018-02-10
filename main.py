@@ -36,23 +36,18 @@ def critere_switch(crit, **kwargs):
         "TC": lambda graph, test, critere_to_cover: critere_TC(graph, test, critere_to_cover)
     }.get(crit)
 
-def generate_tests(graph, critere, elems_to_cover, **kwargs):
+def generate_tests(graph, critere, elems_to_cover, rang = 15, **kwargs):
     # To simplify, we will hardcode the variables names here.
-    candidates = [{'x': i} for i in range(-generate_range, generate_range)] # Get candidates for the search
+    candidates = [{'x': i} for i in range(-rang, rang)] # Get candidates for the search
     elems_to_cover_critere = elems_to_cover[critere] # Elems that need to be covered by the tests
 
-    non_covered_elems = [] # We will get the non-covered itemps for each test
-    for index, cand in enumerate(candidates): # Candidates are dictionnaries
-        test_cand = {copy(key): copy(value) for key, value in cand.items()} # Our implementation has drawbacks...
-        _, non_covered = critere_switch(critere, **kwargs)(graph, [test_cand], elems_to_cover[critere], **kwargs)
-
-        if len(non_covered) == 0 or type(next(iter(non_covered))) == list: # For criteria where we deal with paths
-            non_covered_elems.append(set("-".join([str(i) for i in path]) for path in non_covered))
-        else: # For criterias where we deal with nodes
-            non_covered_elems.append(non_covered)
-
+    # Transform the elements to cover to a simpler representation (path, list of indices...)
     if critere == "TC":
         elems_to_cover_critere = get_elems_to_cover_idx_TC(elems_to_cover_critere)
+    elif critere == "TU":
+        elems_to_cover_critere = get_elems_to_cover_idx_TU(elems_to_cover_critere)
+    elif critere == "TDU":
+        elems_to_cover_critere = get_elems_to_cover_paths(elems_to_cover_critere)
 
     if type(next(iter(elems_to_cover_critere))) == list:
         # This is a criterion dealing with unhashable lists, convert to string
@@ -61,29 +56,44 @@ def generate_tests(graph, critere, elems_to_cover, **kwargs):
         # This deals with nodes or tuples, hashable
         elems_to_cover_set = set(elems_to_cover_critere)
 
-    covered_elems = [
-        elems_to_cover_set.difference(non_covered_elems[i]) for i in range(len(non_covered_elems))
-    ] # Reverse the sets for a cleaner code. It's easier to deal with unions rather than intersections
     test_set = []
 
     # Basically, this is a set cover problem
-    total_union = set() # This is the current conver
-    while total_union != elems_to_cover_set:
-        best_candidate_index = 0 # Initialize candidate
+    total_non_covered = elems_to_cover_set # This is the current elements to cover
+
+    while total_non_covered != set():
         best_candidate = candidates[0] # Initialize candidate
-        best_covered = len(set(covered_elems[0])) # Initialize candidate
-        for index, cand in enumerate(candidates): # Find a better one
-            if len(set(covered_elems[index]).union(total_union)) > best_covered:
-                best_candidate_index = index
+        best_cand = [best_candidate.copy()]  # Our implementation has drawbacks...
+        _, non_covered = critere_switch(critere, **kwargs)(graph, best_cand, elems_to_cover[critere], **kwargs)
+        if len(non_covered) == 0 or type(next(iter(non_covered))) == list:  # For criteria where we deal with paths
+            best_non_covered_elems = set("-".join([str(i) for i in path]) for path in non_covered) # Initialize candidate
+        else:  # For criterias where we deal with nodes
+            best_non_covered_elems = set(non_covered)
+        best_non_covered = len(set(best_non_covered_elems))
+
+
+        for cand in candidates: # Find a better one
+
+            temp_cand = [test.copy() for test in test_set + [cand]]
+            _, non_covered = critere_switch(critere, **kwargs)(graph, temp_cand, elems_to_cover[critere], **kwargs)
+            if len(non_covered) == 0 or type(next(iter(non_covered))) == list:  # For criteria where we deal with paths
+                set_non_covered_elems = set(
+                    "-".join([str(i) for i in path]) for path in non_covered)  # Initialize candidate
+            else:  # For criterias where we deal with nodes
+                set_non_covered_elems = set(non_covered)
+            # We check whether the added best candidate reduces the size of elements to cover or not
+            if len(set_non_covered_elems) < best_non_covered:
                 best_candidate = cand
-                best_covered = len(set(covered_elems[index]).union(total_union))
-        if len(set(covered_elems[best_candidate_index]).union(total_union)) > len(total_union):
+                best_non_covered_elems = set_non_covered_elems
+                best_non_covered = len(best_non_covered_elems)
+
+        if best_non_covered < len(total_non_covered):
             test_set.append(best_candidate) # Add this candidate if they are better (better union)
-            total_union = set(covered_elems[best_candidate_index]).union(total_union)
+            total_non_covered = best_non_covered_elems
         else:
             break
 
-    return test_set
+    return test_set, len(total_non_covered)/len(elems_to_cover_critere)
 
 if __name__ == "__main__":
     graph = create_graph() # Initialize the graph for the program 'prog_1'
@@ -228,33 +238,41 @@ if __name__ == "__main__":
     #######################
 
     if args.generate and "TA" in criteria_to_generate:
-        a = generate_tests(graph, "TA", elems_to_cover)
+        a, perc_a = generate_tests(graph, "TA", elems_to_cover, generate_range)
         print("Un jeu de test pour TA est: {}".format(a))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_a) * 100)))
 
     if args.generate and "TD" in criteria_to_generate:
-        b = generate_tests(graph, "TD", elems_to_cover)
+        b, perc_b = generate_tests(graph, "TD", elems_to_cover, generate_range)
         print("Un jeu de test pour TD est: {}".format(b))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_b) * 100)))
 
     if args.generate and "k-TC" in criteria_to_generate:
-        c = generate_tests(graph, "k-TC", elems_to_cover, k=10)
+        c, perc_c = generate_tests(graph, "k-TC", elems_to_cover, generate_range, k=10)
         print("Un jeu de test pour k-TC est: {}".format(c))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_c) * 100)))
 
     if args.generate and "i-TB" in criteria_to_generate:
-        d = generate_tests(graph, "i-TB", elems_to_cover, i=1)
+        d, perc_d = generate_tests(graph, "i-TB", elems_to_cover, generate_range, i=1)
         print("Un jeu de test pour i-TB est: {}".format(d))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_d) * 100)))
 
     if args.generate and "TDef" in criteria_to_generate:
-        e = generate_tests(graph, "TDef", elems_to_cover)
+        e, perc_e = generate_tests(graph, "TDef", elems_to_cover, generate_range)
         print("Un jeu de test pour TDef est: {}".format(e))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_e) * 100)))
 
     if args.generate and "TU" in criteria_to_generate:
-        g = generate_tests(graph, "TU", elems_to_cover)
-        print("Un jeu de test pour TU est: {}".format(g))
+        f, perc_f = generate_tests(graph, "TU", elems_to_cover, generate_range)
+        print("Un jeu de test pour TU est: {}".format(f))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_f) * 100)))
 
     if args.generate and "TDU" in criteria_to_generate:
-        f = generate_tests(graph, "TDU", elems_to_cover)
-        print("Un jeu de test pour TDU est: {}".format(f))
+        g, perc_g = generate_tests(graph, "TDU", elems_to_cover, generate_range)
+        print("Un jeu de test pour TDU est: {}".format(g))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_g) * 100)))
 
     if args.generate and "TC" in criteria_to_generate:
-        h = generate_tests(graph, "TC", elems_to_cover)
+        h, perc_h = generate_tests(graph, "TC", elems_to_cover, generate_range)
         print("Un jeu de test pour TC est: {}".format(h))
+        print("Le test permet de couvrir {}% des éléments.".format(math.floor((1 - perc_h) * 100)))

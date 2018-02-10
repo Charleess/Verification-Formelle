@@ -48,24 +48,10 @@ def test_all_usages_paths(graph, tests, elems_to_cover):
         path = browse_graph(t, graph) # Get the path associated with the test
         tests_paths.append(path)
 
-    successes = []
     possible_paths_dico = elems_to_cover
     paths_to_cover = get_elems_to_cover_paths(possible_paths_dico)
     paths_to_cover_fix = paths_to_cover
 
-    # for u in possible_paths_dico.keys(): # We can now check the criterion
-    #     all_ok = True
-    #     for v in possible_paths_dico[u].keys():
-    #         all_ok_v = True
-    #         for subpath in possible_paths_dico[u][v]:
-    #             all_ok_subpath = False
-    #             for test_path in tests_paths:
-    #                 if len(subfinder(test_path, subpath)) > 0: # The path was found in at least one of the tests
-    #                     all_ok_subpath = True
-    #             all_ok_v = all_ok_v and all_ok_subpath # Here is the difference with the TU criterion
-    #         all_ok = all_ok and all_ok_v # FOR ALL
-    #     if all_ok:
-    #         successes.append(u)
     for path in paths_to_cover_fix:
         for test_path in tests_paths:
             if len(subfinder(test_path, path)) > 0:  # The path was found in at least one of the tests
