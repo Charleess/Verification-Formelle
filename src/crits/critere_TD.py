@@ -2,13 +2,16 @@
 from ..common import browse_graph, subfinder
 
 def elems_to_cover_TD(graph):
-    
-
-def test_all_decisions(graph, tests, elems_to_cover):
-    """ Test the criteria """
+    """ Returns a list of the elements to cover for the criterion """
     decision_edges = [
         (i, j) for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if'
     ] # Get all the decision edges
+
+    return decision_edges
+
+def test_all_decisions(graph, tests, elems_to_cover):
+    """ Test the criteria """
+    decision_edges = elems_to_cover
     decision_edges_fix = decision_edges # For the stats
 
     for t in tests:
@@ -20,9 +23,9 @@ def test_all_decisions(graph, tests, elems_to_cover):
 
     return(decision_edges, decision_edges_fix)
 
-def critere_TD(graph, tests):
+def critere_TD(graph, tests, elems_to_cover):
     """ Main """
-    decision_edges, decision_edges_fix = test_all_decisions(graph, tests)
+    decision_edges, decision_edges_fix = test_all_decisions(graph, tests, elems_to_cover)
 
     try:
         res = (1 - len(decision_edges) / len(decision_edges_fix)) * 100

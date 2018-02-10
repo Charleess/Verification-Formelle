@@ -1,7 +1,15 @@
 from src.common import Def, Ref, simple_paths, browse_graph, subfinder
 """ Toutes les utilisations """
 
-def test_all_usages(graph, tests):
+def elems_to_cover_TU(graph):
+    """ Returns a list of the elements to cover for the criterion """
+    def_nodes_list = [
+        node for node in graph.nodes if Def(graph, node) != []
+    ] # All the definition nodes
+
+    return def_nodes_list
+
+def test_all_usages(graph, tests, elems_to_cover):
     """ Test the criteria """
     tests_paths = []
     for t in tests:
@@ -9,7 +17,7 @@ def test_all_usages(graph, tests):
         path = browse_graph(t, graph) # Get the path associated with the test
         tests_paths.append(path)
 
-    def_node_list = [node for node in graph.nodes if Def(graph, node) != []] # All the definition nodes
+    def_node_list = elems_to_cover
     ref_node_list = [node for node in graph.nodes if Ref(graph, node) != []] # All the reference nodes
     successes = []
     possible_paths_dico = {} # Holds the state of the test run
@@ -26,7 +34,7 @@ def test_all_usages(graph, tests):
             for path in possible_paths:
                 is_valid = True
                 for e in path[1:-1]:
-                    if def_var in Def(e): # We redefine the variable, the path is not correct
+                    if def_var in Def(graph, e): # We redefine the variable, the path is not correct
                         is_valid = False
                 if is_valid:
                     possible_paths_dico[node][ref_node].append(path) # This path is ok
@@ -37,8 +45,8 @@ def test_all_usages(graph, tests):
         for v in possible_paths_dico[u].keys():
             all_ok_v = False
             for subpath in possible_paths_dico[u][v]:
-                for test_path in test_paths:
-                    if len(subfinder(tests_path, subpath)) > 0: # The path was found in at least one of the tests
+                for test_path in tests_paths:
+                    if len(subfinder(test_path, subpath)) > 0: # The path was found in at least one of the tests
                         all_ok_v = True
             all_ok = all_ok and all_ok_v # AT LEAST and not FOR ALL
         if all_ok:
@@ -46,9 +54,9 @@ def test_all_usages(graph, tests):
 
     return(def_node_list, successes)
 
-def critere_TU(graph, tests):
+def critere_TU(graph, tests, elems_to_cover):
     """ Main """
-    def_node_list, successes = test_all_usages(graph, tests)
+    def_node_list, successes = test_all_usages(graph, tests, elems_to_cover)
 
     try:
         res = (len(successes) / len(def_node_list)) * 100

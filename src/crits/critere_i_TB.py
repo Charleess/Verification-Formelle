@@ -2,8 +2,8 @@
 import networkx as nx
 from ..common import subfinder, browse_graph, is_i_loop, compute_all_loops, compute_all_paths
 
-def test_all_i_loops(graph, i, tests):
-    """ Test the criteria """
+def elems_to_cover_i_TB(graph, i=1):
+    """ Returns a list of the elements to cover for the criterion """
     max_node = max(list(graph.nodes)) # Max node of the tree to limit the search
     loops = compute_all_loops(graph) # Get all the loops in the tree, if any
     max_loop_size = max([len(loop) for loop in loops]) # Max loop size is used for the search limit
@@ -18,6 +18,12 @@ def test_all_i_loops(graph, i, tests):
     impossible_paths += [[1, 2, 4, 5] + [7, 5] * k + [8] for k in range(2, (2 * i + max_node - 4) // 2 + 1)]
 
     possible_paths = [path for path in possible_paths if path not in impossible_paths] # Effectively do the cleaning
+
+    return possible_paths
+
+def test_all_i_loops(graph, tests, elems_to_cover, i=1):
+    """ Test the criteria """
+    possible_paths = elems_to_cover
     total = len(possible_paths)
 
     for t in tests:
@@ -28,9 +34,9 @@ def test_all_i_loops(graph, i, tests):
 
     return(possible_paths, total)
 
-def critere_i_TB(graph, i, tests):
+def critere_i_TB(graph, tests, elems_to_cover, i=1):
     """ Main """
-    remaining_paths, total = test_all_i_loops(graph, i, tests) # Get the paths that were not ok
+    remaining_paths, total = test_all_i_loops(graph, tests, elems_to_cover, i) # Get the paths that were not ok
 
     try:
         res = (1 - (len(remaining_paths) / total)) * 100 # Get the percentage
