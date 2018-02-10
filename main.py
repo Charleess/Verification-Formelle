@@ -12,9 +12,12 @@ parser = argparse.ArgumentParser(
     description="Symbolic Execution Engine for Structural Testing"
 )
 parser.add_argument("-v", "--version", action="version", version="%(prog)s v1.0")
-parser.add_argument("-d", "--draw-graph", action="store_true", help="Draw the graph associated with the program")
+parser.add_argument("-d", "--draw-graph", action="store_true", help="draw the graph associated with the program")
+parser.add_argument("-c", "--criterion", type=str, nargs="*", choices=["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"], help="the criteria you want to test")
+parser.add_argument("-t", "--test-set", type=list, help="the test set you want to use, as a list of dicts, e.g. [{'x': 1}, ...]")
 
 args = parser.parse_args()
+print(args)
 
 def critere_switch(crit, **kwargs):
     """ Switch """
