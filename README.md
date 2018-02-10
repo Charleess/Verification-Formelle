@@ -152,7 +152,6 @@ Nous avons défini une fonction récursive qui ajoute au noeud courant les chemi
 
 *Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion de chemins de longueur inférieure ou égale à k ayant été parcourus par rapport au nombre total de ces chemins.
 
-
 ### (i-TB) Toutes les i-boucles
 
 Un jeu de test T pour Prog satisfait le critère "toutes les i-boucles", dénoté i-TB, avec i ∈ N si pour tous les chemins ρ pour lesquels les boucles while sont exécutées au plus i fois, il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ.
@@ -195,7 +194,7 @@ On commence par récupérer tous les noeuds qui définissent des variables, et t
 
 Après avoir exécuté cet algorithme sur tous les noeuds de définition, on obtient une liste comprenant tout les chemins entre deux noeuds. On stocke cette information sous la force d'une liste indexée par le noeud de départ et le noeud d'arrivée, de cette façon, on a tous les chemins possibles entre deux noeuds, sans redéfinition, et pratique à utiliser. Il suffit maintenant de générer tous les chemins découlant de nos tests, et de vérifier si on retrouve bien au moins un des chemins de nos listes, ceci pour chaque liste. *In fine*, si pour chaque liste on retrouve au moins un des chemins dans un des tests, alors le critère est satisfait.
 
-**NB:** Ce critère ne peut pas être satisfait à 100% de part sa définition. En effet, un programme peut terminer par une assignation dans une des arêtes. Ainsi, cette assignation n'a pas de noeud fils, et ne pourra jamais être utilisée. C'est pourquoi dans notre cas, le test termine avec une couverture de 75%, car le noeud 6 donne directement sur le noeud 8, qui n'a pas d'enfants puisque il est la fin du programme.
+**NB:** Notre programme rend mathématiquement impossible la satisfaction du noeud 3, d'où le 75% et l'intérêt d'un model-checker pour vérifier ce genre de problème.
 
 *Pourcentage de couverture :* L'ensemble à couvrir ici est l'ensemble des couples d'arêtes u où u définit une variable. Pour chacune de ces arêtes, le test de couverture porte sur les arêtes v utilisant la variable sans redéfinition préalable. Le pourcentage de couverture de ce test est la proportion de arêtes de définition qui sont couvertes par un des chemins de test, au sens du critère précédent.
 

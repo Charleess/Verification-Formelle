@@ -42,7 +42,6 @@ def generate_tests(graph, critere, elems_to_cover, **kwargs):
             non_covered_elems.append(set("-".join([str(i) for i in path]) for path in non_covered))
         else: # For criterias where we deal with nodes
             non_covered_elems.append(non_covered)
-    print(non_covered_elems)
 
     if type(next(iter(elems_to_cover_critere))) == list:
         # This is a criterion dealing with unhashable lists, convert to string
@@ -87,45 +86,45 @@ if __name__ == "__main__":
     if args.run_all:
         print("Démarrage...")
 
-        # tests = [{'x': i} for i in range(-15,15)]
-        # elems_to_cover["TA"] = set(elems_to_cover_TA(graph))
-        # percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
-        # print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-15,15)]
+        elems_to_cover["TA"] = set(elems_to_cover_TA(graph))
+        percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
+        print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
-        # tests = [{'x': i} for i in range(-15,15)]
-        # elems_to_cover["TD"] = set(elems_to_cover_TD(graph))
-        # percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
-        # print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-15,15)]
+        elems_to_cover["TD"] = set(elems_to_cover_TD(graph))
+        percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
+        print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
-        # tests = [{'x': i} for i in range(-15,15)]
-        # elems_to_cover["k-TC"] = elems_to_cover_k_TC(graph, k=10)
-        # percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
-        # print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-15,15)]
+        elems_to_cover["k-TC"] = elems_to_cover_k_TC(graph, k=10)
+        percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
+        print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
-        # tests = [{'x': i} for i in range(-15,15)]
-        # elems_to_cover["i-TB"] = elems_to_cover_i_TB(graph, i=10)
-        # percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
-        # print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-15,15)]
+        elems_to_cover["i-TB"] = elems_to_cover_i_TB(graph, i=10)
+        percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
+        print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
-        # tests = [{'x': i} for i in range(-15, 15)]
-        # elems_to_cover["TDef"] = elems_to_cover_TDef(graph)
-        # percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
-        # print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-15, 15)]
+        elems_to_cover["TDef"] = elems_to_cover_TDef(graph)
+        percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
+        print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
         tests = [{'x': i} for i in range(-15, 15)]
         elems_to_cover["TU"] = elems_to_cover_TU(graph)
@@ -143,39 +142,38 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
-        # tests = [{'x': i} for i in range(-3, 3)]
-        # elems_to_cover["TC"] = elems_to_cover_TC(graph)
-        # print(elems_to_cover["TC"])
-        # percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
-        # print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
-        #     percentage,
-        #     non_covered_elems
-        # ))
+        tests = [{'x': i} for i in range(-3, 3)]
+        elems_to_cover["TC"] = elems_to_cover_TC(graph)
+        percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
+        print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     #######################
     # GENERATION DE TESTS #
     #######################
 
-        # a = generate_tests(graph, "TA", elems_to_cover)
-        # print("Un jeu de test pour TA est: {}".format(a))
+        a = generate_tests(graph, "TA", elems_to_cover)
+        print("Un jeu de test pour TA est: {}".format(a))
 
-        # b = generate_tests(graph, "TD", elems_to_cover)
-        # print("Un jeu de test pour TD est: {}".format(b))
+        b = generate_tests(graph, "TD", elems_to_cover)
+        print("Un jeu de test pour TD est: {}".format(b))
 
-        # c = generate_tests(graph, "k-TC", elems_to_cover, k=10)
-        # print("Un jeu de test pour k-TC est: {}".format(c))
+        c = generate_tests(graph, "k-TC", elems_to_cover, k=10)
+        print("Un jeu de test pour k-TC est: {}".format(c))
 
-        # d = generate_tests(graph, "i-TB", elems_to_cover, i=1)
-        # print("Un jeu de test pour i-TB est: {}".format(d))
+        d = generate_tests(graph, "i-TB", elems_to_cover, i=1)
+        print("Un jeu de test pour i-TB est: {}".format(d))
 
-        # e = generate_tests(graph, "TDef", elems_to_cover)
-        # print("Un jeu de test pour TDef est: {}".format(e))
+        e = generate_tests(graph, "TDef", elems_to_cover)
+        print("Un jeu de test pour TDef est: {}".format(e))
 
-        # g = generate_tests(graph, "TU", elems_to_cover)
-        # print("Un jeu de test pour TU est: {}".format(g))
+        g = generate_tests(graph, "TU", elems_to_cover)
+        print("Un jeu de test pour TU est: {}".format(g))
 
-        # f = generate_tests(graph, "TDU", elems_to_cover)
-        # print("Un jeu de test pour TDU est: {}".format(f))
+        f = generate_tests(graph, "TDU", elems_to_cover)
+        print("Un jeu de test pour TDU est: {}".format(f))
 
-        # h = generate_tests(graph, "TC", elems_to_cover)
-        # print(h)
+        h = generate_tests(graph, "TC", elems_to_cover)
+        print(h)

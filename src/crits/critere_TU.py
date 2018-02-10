@@ -43,7 +43,7 @@ def test_all_usages(graph, tests, elems_to_cover):
     for u in def_node_list: # We can now check the criterion
         all_ok = True
         for v in possible_paths_dico[u].keys():
-            all_ok_v = False
+            all_ok_v = False or possible_paths_dico[u][v] == []
             for subpath in possible_paths_dico[u][v]:
                 for test_path in tests_paths:
                     if len(subfinder(test_path, subpath)) > 0: # The path was found in at least one of the tests

@@ -59,7 +59,6 @@ def test_all_usages_paths(graph, tests, elems_to_cover):
 def critere_TDU(graph, tests, elems_to_cover):
     """ Main """
     def_node_list, successes = test_all_usages_paths(graph, tests, elems_to_cover)
-    print(successes)
     try:
         res = (len(successes) / len(def_node_list)) * 100
         return res, list(set(def_node_list) - set(successes))
