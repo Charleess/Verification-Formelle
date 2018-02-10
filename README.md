@@ -237,7 +237,7 @@ Pour chaque condition, on va alors regarder dans le résultat du parcours de gra
 ## Relations entre les critères
 
 Le critère "tous les DU-chemins" est plus fort que le critère "toutes les utilisations", qui lui même serait plus fort que le critère "toutes les définitions" si sa formulation était la suivante :
-"Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, tels qu'il existe un nœuds v CG(Prog) avec X ∈ ref(v) sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), pour lequel il existe une donnée de test σ de T vérifiant path(P rog, σ) = ρ."
+"Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, tels qu'il existe un nœuds v CG(Prog) avec X ∈ ref(v) sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), pour lequel il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ."
 Enfin, le critère "toutes les définitions" tel que donné dans l'énoncé est plus fort que le critère "toutes les affectations", puisqu'un chemin passant par un noeud de définition puis par un noeud d'utilisation passe par le noeud de définition.
 
 Le critère "toutes les décisions" n'est pas plus fort que le critère "toutes les 1-boucles", car il ne suffit pas de s'assurer que l'on passe par une boucle while pour affirmer que tous les chemins passant au plus 1 fois par la boucle while sont couverts. Il existe des programmes qui ne peuvent vérifier cette condition
@@ -245,8 +245,7 @@ On peut en exhiber un exemple :
  si x < 0 :
     x = x - 3
  tant que x < 0
-    x : x+1
-
+    x : x + 1
 
 ## Génération de tests
 

@@ -25,7 +25,7 @@ def test_all_usages(graph, tests, elems_to_cover):
     for node in def_node_list: # For every definition ...
         possible_paths_dico[node] = {}
         def_var = Def(graph, node)[0] # The defined variable, there can be only one
-        ref_nodes = [n for n in ref_node_list if Ref(graph, n) == def_var] # All the nodes that refer to this variable
+        ref_nodes = [n for n in ref_node_list if def_var in Ref(graph, n)] # All the nodes that refer to this variable
 
         for ref_node in ref_nodes:
             possible_paths_dico[node][ref_node] = [] # Paths from u to ref_node

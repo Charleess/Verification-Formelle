@@ -14,20 +14,22 @@ def elems_to_cover_TC(graph):
             (i, j, cond, [False, False]) for cond in graph.adj[i][j]["dec"][0]
         ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?])
     
-    return {(i, j): len([cond for cond in conditions_to_test if cond[0] == i and  cond[1] == j]) for i, j in decision_edges}
+    return conditions_to_test
+
+    # return {(i, j): len([cond for cond in conditions_to_test if cond[0] == i and  cond[1] == j]) for i, j in decision_edges}
 
 def test_all_conditions(graph, tests, conditions_to_test):
     """ Test the criteria """
-    decision_edges = [
-        (i, j) for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if'
-    ] # Get all the decision edges
+    # decision_edges = [
+    #     (i, j) for i, j in graph.edges if graph.adj[i][j]['cmd_type'] == 'if'
+    # ] # Get all the decision edges
 
-    conditions_to_test_tuples = [] # List for the conditions to test
-    for i, j in decision_edges: # Fill the list
-        conditions_to_test_tuples += [
-            (i, j, cond, [False, False]) for cond in graph.adj[i][j]["dec"][0]
-        ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?])
-
+    # conditions_to_test_tuples = [] # List for the conditions to test
+    # for i, j in decision_edges: # Fill the list
+    #     conditions_to_test_tuples += [
+    #         (i, j, cond, [False, False]) for cond in graph.adj[i][j]["dec"][0]
+    #     ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?])
+    conditions_to_test_tuples = conditions_to_test
     conditions_to_test_fix = [(i, j, cond, [copy(a) for a in l]) for i, j, cond, l in conditions_to_test_tuples] # For the stats
 
     for t in tests:

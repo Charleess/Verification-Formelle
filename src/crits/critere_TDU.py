@@ -25,7 +25,7 @@ def test_all_usages_paths(graph, tests, elems_to_cover):
     for node in def_node_list: # For every definition ...
         possible_paths_dico[node] = {}
         def_var = Def(graph, node)[0] # The defined variable, there can be only one
-        ref_nodes = [n for n in ref_node_list if Ref(graph, n) == def_var] # All the nodes that refer to this variable
+        ref_nodes = [n for n in ref_node_list if def_var in Ref(graph, n)] # All the nodes that refer to this variable
 
         for ref_node in ref_nodes:
             possible_paths_dico[node][ref_node] = [] # Paths from u to ref_node
@@ -43,7 +43,7 @@ def test_all_usages_paths(graph, tests, elems_to_cover):
     for u in def_node_list: # We can now check the criterion
         all_ok = True
         for v in possible_paths_dico[u].keys():
-            all_ok_v = False
+            all_ok_v = True
             for subpath in possible_paths_dico[u][v]:
                 all_ok_subpath = False
                 for test_path in tests_paths:
@@ -58,10 +58,10 @@ def test_all_usages_paths(graph, tests, elems_to_cover):
 
 def critere_TDU(graph, tests, elems_to_cover):
     """ Main """
-    ref_node_list, successes = test_all_usages_paths(graph, tests, elems_to_cover)
-
+    def_node_list, successes = test_all_usages_paths(graph, tests, elems_to_cover)
+    print(successes)
     try:
-        res = (len(successes) / len(ref_node_list)) * 100
-        return res, list(set(ref_node_list) - set(successes))
+        res = (len(successes) / len(def_node_list)) * 100
+        return res, list(set(def_node_list) - set(successes))
     except ValueError:
         return None
