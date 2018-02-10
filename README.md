@@ -237,25 +237,43 @@ Pour chaque condition, on va alors regarder dans le résultat du parcours de gra
 
 Le critère "tous les DU-chemins" est plus fort que le critère "toutes les utilisations", qui lui même serait plus fort que le critère "toutes les définitions" si sa formulation était la suivante :
 "Un jeu de test T pour Prog satisfait le critère "toutes les définitions", dénoté TDef, si pour toutes les variables X de Prog, pour tous les nœuds u de CG(Prog) avec def(u) = {X}, tels qu'il existe un nœuds v CG(Prog) avec X ∈ ref(v) sans redéfinition de X, c’est- à-dire vérifiant ∀l ∈ Labels(μ), X ̸∈ ref(l), il existe un chemin ρ de la forme μ1.lu.μ.l′.μ3 avec lu = Label(u) et lv = Label(v), pour lequel il existe une donnée de test σ de T vérifiant path(Prog, σ) = ρ."
-Enfin, le critère "toutes les définitions" tel que donné dans l'énoncé est plus fort que le critère "toutes les affectations", puisqu'un chemin passant par un noeud de définition puis par un noeud d'utilisation passe par le noeud de définition.
+
+Le critère "toutes les définitions" tel que donné dans l'énoncé est plus fort que le critère "toutes les affectations", puisqu'un chemin passant par un noeud de définition puis par un noeud d'utilisation passe par le noeud de définition.
 
 Le critère "toutes les décisions" n'est pas plus fort que le critère "toutes les 1-boucles", car il ne suffit pas de s'assurer que l'on passe par une boucle while pour affirmer que tous les chemins passant au plus 1 fois par la boucle while sont couverts. Il existe des programmes qui ne peuvent vérifier cette condition
 On peut en exhiber un exemple :
- si x < 0 :
+
+```python
+if x < 0:
     x = x - 3
- tant que x < 0
-    x : x + 1
+while x < 0:
+    x = x + 1
+```
 
 ## Génération de tests
 
-Pour la génération de tests, nous avons raisonné en termes d'ensembles. Pour chaque critère, nous déduisons un ensemble à couvrir (ensemble de noeuds, de chemins, ou d'expressions booléennes) et nous calculons l'ensemble des éléments couverts par chaque assignation de variables initiale. Pour calculer cette couverture, il est suggéré de calculer le prédicat de chemin pour les chemins à couvrir. Néanmoins, les méthodes développées pour tester les critères permettent de déduire cette couverture. En effet, pour chaque affectation, elles testent des égalités entre les chemins à couvrir et le chemin découlant de l'exécution du programme avec l'affectation. Ces égalités sont équivalentes à des satisfiabilités de formules booléennes par une assignation de variables. Une fois déterminés les éléments couverts par chaque affectation de variable, nous cherchons la couverture la plus petite de l'ensemble des valeurs à couvrir. Pour cela, il n'y a pas de résolution exacte car c'est un problème NP-complet, mais nous utilisons la méthode gloutonne, qui en fournit une approximation à un facteur logarithmique près. Ainsi nous déterminons un jeu de tests avec le soucis de sa taille.
+Pour la génération de tests, nous avons raisonné en termes d'ensembles. Pour chaque critère, nous déduisons un ensemble à couvrir (ensemble de noeuds, de chemins, ou d'expressions booléennes) et nous calculons l'ensemble des éléments couverts par chaque assignation de variables initiale.
 
-# TODO
+Pour calculer cette couverture, il est suggéré de calculer le *prédicat de chemin* pour les chemins à couvrir. Cette methode est probablement la plus efficace pour trouver rapidement des jeux de tests à l'aide de solveurs de contraintes, néanmoins, les méthodes développées pour tester les critères permettent aussi de déduire cette couverture et sont en fait équivalentes. En effet, pour chaque affectation, elles testent des égalités entre les chemins à couvrir et le chemin découlant de l'exécution du programme avec l'affectation. Ces égalités sont équivalentes à des satisfiabilités de formules booléennes par une assignation de variables.
 
-Trouver pour chaque critère des tests qui passent et des tests qui ne passent pas
-Comparer les critères entre eux au sens de "plus fort que" en illustrant par des programmes pour l'infirmation de certains "plus fort que"
+Une fois déterminés les éléments couverts par chaque affectation de variable, nous cherchons la couverture la plus petite de l'ensemble des valeurs à couvrir. Pour cela, il n'y a pas de résolution exacte car c'est un problème NP-complet, mais nous utilisons la méthode gloutonne, qui en fournit une approximation à un facteur logarithmique près. Ainsi nous déterminons un jeu de tests avec le soucis de sa taille.
 
-1. récupérer les variables
-1. Créer un domaine pour chaque variable
-1. Restreindre le domaine avec le critère de test
-1. Calculer une solution
+Plus simplement, on a une équivalence entre :
+
+1. Partir du critère à vérifier
+1. En déduire une liste d'éléments à couvrir
+1. Pour chaque élément de cette liste, en déduire un chemin dans le grahe jusqu'au noeud initial
+1. Traduire ce/ces chemin(s) en conditions booléennes sur les variables
+1. Utiliser un solveur d'expressions booléennes pour en déduire un jeu de tests dans un certain domaine
+
+Et :
+
+1. Partir du critère à vérifier
+1. En déduire une liste d'éléments à couvrir
+1. Générer des chemins à partir de données de test dans un certain domaine
+1. Se ramener à une `COUVERTURE ENSEMBLE` et chercher le plus petit ensemble de valeurs de test couvrant l'ensemble des éléments à couvrir
+
+Dans le premier cas, on va chercher à résoudre une formule booléenne, c'est moins cher en temps de calcul, mais la génération de cette formule peut être plus longue. Dans le second, on va générer de nombreux chemins, ce qui peut être cher, mais l'algorithme glouton qui suit est polynomial dans le pire des cas. Dans tous les cas, il faudra se restreindre à un espace de recherche, le faire en amont lors de la génération des chemins, ou en aval lors du calcul de satisfaisabilité de la formule booléenne revient fondamentalement à la même chose.
+
+___
+Karim Lasri - Charles Férault

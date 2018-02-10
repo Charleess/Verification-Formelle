@@ -8,14 +8,16 @@ L'intégralité du code source est contenu dans le dosser `/src/`. Les fichiers 
 
 ```bash
 $ pip install -r requirements.txt
-$ python main.py -ra
+$ python main.py -h
 ```
+
+L'invite de commandes donnera les différentes méthodes utilisables directement en CLI.
 
 ## Mode d'emploi
 
 Le tester fonctionne avec les flags suivants:
 
-* `-ra` Run All: Run all the tests on predefined test sets. This can be useful to test the integrity of the tester
+* `-d` ou `--draw-graph` Draw Graph: Dessine le graphe de contrôle associé au programme dans une nouvelle fenêtre
 
 ---
 Karim Lasri - Charles Férault

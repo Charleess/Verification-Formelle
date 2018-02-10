@@ -1,5 +1,6 @@
 """ Main entry point """
 import math
+import sys
 from copy import copy
 import argparse
 from src.programs.prog_1 import create_graph, draw_graph
@@ -11,7 +12,7 @@ parser = argparse.ArgumentParser(
     description="Symbolic Execution Engine for Structural Testing"
 )
 parser.add_argument("-v", "--version", action="version", version="%(prog)s v1.0")
-parser.add_argument("-ra", "--run-all", action="store_true", help="Run all the tests", default=True)
+parser.add_argument("-d", "--draw-graph", action="store_true", help="Draw the graph associated with the program")
 
 args = parser.parse_args()
 
@@ -76,16 +77,24 @@ def generate_tests(graph, critere, elems_to_cover, **kwargs):
 
 if __name__ == "__main__":
     graph = create_graph() # Initialize the graph for the program 'prog_1'
-    #draw_graph(graph) # Draw the graph in a window
+
+    ####################
+    # SCHEMAS DE PROGS #
+    ####################
+    if args.draw_graph:
+        draw_graph(graph) # Draw the graph in a window
 
     elems_to_cover = {}
 
     ####################
     # CRITERES DE TEST #
     ####################
-    if args.run_all:
+    if not len(sys.argv) > 1:
         print("Démarrage...")
+        print("No arguments were specified, dry-running with test samples of range(-15, 15) for prog_1.")
+        input("Press any key to continue...")
 
+        # EXAMPLE TA
         tests = [{'x': i} for i in range(-15,15)]
         elems_to_cover["TA"] = set(elems_to_cover_TA(graph))
         percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
@@ -94,6 +103,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE TD
         tests = [{'x': i} for i in range(-15,15)]
         elems_to_cover["TD"] = set(elems_to_cover_TD(graph))
         percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
@@ -102,6 +112,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE k-TC
         tests = [{'x': i} for i in range(-15,15)]
         elems_to_cover["k-TC"] = elems_to_cover_k_TC(graph, k=10)
         percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
@@ -110,6 +121,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE i-TB
         tests = [{'x': i} for i in range(-15,15)]
         elems_to_cover["i-TB"] = elems_to_cover_i_TB(graph, i=10)
         percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
@@ -118,6 +130,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE TDef
         tests = [{'x': i} for i in range(-15, 15)]
         elems_to_cover["TDef"] = elems_to_cover_TDef(graph)
         percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
@@ -126,6 +139,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE TU
         tests = [{'x': i} for i in range(-15, 15)]
         elems_to_cover["TU"] = elems_to_cover_TU(graph)
         percentage, non_covered_elems = critere_TU(graph, tests, elems_to_cover["TU"])
@@ -134,6 +148,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE TDU
         tests = [{'x': i} for i in range(-20, 20)]
         elems_to_cover["TDU"] = elems_to_cover_TDU(graph)
         percentage, non_covered_elems = critere_TDU(graph, tests, elems_to_cover["TDU"])
@@ -142,6 +157,7 @@ if __name__ == "__main__":
             non_covered_elems
         ))
 
+        # EXAMPLE TC
         tests = [{'x': i} for i in range(-3, 3)]
         elems_to_cover["TC"] = elems_to_cover_TC(graph)
         percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
@@ -176,4 +192,4 @@ if __name__ == "__main__":
         print("Un jeu de test pour TDU est: {}".format(f))
 
         h = generate_tests(graph, "TC", elems_to_cover)
-        print(h)
+        print("Un jeu de test pour TDU est: {}".format(h))
