@@ -47,6 +47,9 @@ def generate_tests(graph, critere, elems_to_cover, **kwargs):
         else: # For criterias where we deal with nodes
             non_covered_elems.append(non_covered)
 
+    if critere == "TC":
+        elems_to_cover_critere = get_elems_to_cover_idx_TC(elems_to_cover_critere)
+
     if type(next(iter(elems_to_cover_critere))) == list:
         # This is a criterion dealing with unhashable lists, convert to string
         elems_to_cover_set = set("-".join([str(i) for i in path]) for path in elems_to_cover_critere)
@@ -195,4 +198,4 @@ if __name__ == "__main__":
         print("Un jeu de test pour TDU est: {}".format(f))
 
         h = generate_tests(graph, "TC", elems_to_cover)
-        print("Un jeu de test pour TDU est: {}".format(h))
+        print("Un jeu de test pour TC est: {}".format(h))

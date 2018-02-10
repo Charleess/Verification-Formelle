@@ -9,12 +9,17 @@ def elems_to_cover_TC(graph):
     ] # Get all the decision edges
 
     conditions_to_test = [] # List for the conditions to test
+    conditions_to_test_id = []
     for i, j in decision_edges: # Fill the list
         conditions_to_test += [
-            (i, j, cond, [False, False]) for cond in graph.adj[i][j]["dec"][0]
-        ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?])
-    
+            (i, j, cond, [False, False], "Cond n°{}".format(str(k))) for k, cond in enumerate(graph.adj[i][j]["dec"][0])
+        ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?], index of condition in edge)
+
     return conditions_to_test
+
+def get_elems_to_cover_idx_TC(conditions_to_test):
+    conditions_to_test_idx = [[i, j, s] for i, j, c, l, s in conditions_to_test]
+    return conditions_to_test_idx
 
     # return {(i, j): len([cond for cond in conditions_to_test if cond[0] == i and  cond[1] == j]) for i, j in decision_edges}
 
@@ -30,7 +35,7 @@ def test_all_conditions(graph, tests, conditions_to_test):
     #         (i, j, cond, [False, False]) for cond in graph.adj[i][j]["dec"][0]
     #     ] # The format is (node1, node2, condition as a lambda, [evaluated as true?, evaluated as false?])
     conditions_to_test_tuples = conditions_to_test
-    conditions_to_test_fix = [(i, j, cond, [copy(a) for a in l]) for i, j, cond, l in conditions_to_test_tuples] # For the stats
+    conditions_to_test_fix = [(i, j, cond, [copy(a) for a in l], idx) for i, j, cond, l, idx in conditions_to_test_tuples] # For the stats
 
     for t in tests:
         # Run the test
@@ -44,8 +49,8 @@ def test_all_conditions(graph, tests, conditions_to_test):
                         cond[3][1] = True # Store this information
                     if cond[3] == [True, True]: # The condition has been evaluated both at true and false at some point
                         conditions_to_test_tuples = [c for c in conditions_to_test_tuples if c != cond] # Remove it
-
-    return(conditions_to_test_tuples, conditions_to_test_fix)
+    conditions_to_test_idx = get_elems_to_cover_idx_TC(conditions_to_test_tuples)
+    return(conditions_to_test_idx, conditions_to_test_fix)
 
 def critere_TC(graph, tests, conditions_to_test):
     """ Main """
