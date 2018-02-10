@@ -4,10 +4,6 @@
 
 Implémentation d'un model-checker pour différents critères et différents tests sur la base d'un graphe de contrôle. Les graphes sont représentés par des instances de `networkx`
 
-```bash
-$ conda install --yes --file requirements.txt
-```
-
 ## Programmes
 
 ### Prog 1
@@ -25,13 +21,13 @@ else:
     x = x + 1
 ```
 
-Pour des raisons de simplification, nous avons parfois ajouté des bouts de code spécifiques à ce programme, notamment pour retirer des chemins impossibles mathématiquement. Ces morceaux sont clairement précisés dans le code, et ne sont pas réplicables à d'autres programmes.
+**Pour des raisons de simplification**, nous avons parfois ajouté des bouts de code spécifiques à ce programme, notamment pour retirer des chemins impossibles mathématiquement. Ces morceaux sont clairement précisés dans le code, et ne sont pas réplicables à d'autres programmes.
 
 ## Partis pris d'implémentation
 
 ### Structure du graphe de contrôle
 
-Les graphes de contôle sont implémentés comme des instances de `networkX`, une bibliothèque de graphes pour python. Les différentes informations seront portées par les arêtes, les noeuds n'ayant qu'un identifiant. Chaque arête est de la forme suivante:
+Les graphes de contôle sont implémentés comme des instances de `networkx`, une bibliothèque de graphes pour `python3.6`. Les différentes informations seront portées par les arêtes, les noeuds n'ayant qu'un identifiant. Chaque arête est de la forme suivante:
 
 ```python
 """ Arête de décision """
@@ -63,7 +59,7 @@ G.add_edge(
 )
 ```
 
-Cette architecture permet une grande flexibilité dans la manipulation des graphes de contrôle. Cependant elle a un défault majeur que nous avons accepté. En effet, les commandes sont des fonctions lambda qui modifient directement le dictionnaire qui est passé en entrée. Lorsque on évalue un test, on modifie directement les valeurs des variables contenues dans le test au lieu de renvoyer un nouvel objet contenant les valeurs finales.
+Cette architecture permet une grande flexibilité dans la manipulation des graphes de contrôle. Cependant elle a un défault majeur que nous avons accepté. En effet, les commandes sont des fonctions `lambda` qui modifient directement le dictionnaire qui est passé en entrée. Lorsque on évalue un test, on modifie directement les valeurs des variables contenues dans le test au lieu de renvoyer un nouvel objet contenant les valeurs finales.
 
 Ce défaut doit être pris en compte en permanence, notamment par l'ajout à certains endroit du code de fonctions de copie plus ou moins élaborées. Python utilise souvent des définitions par référence, et il faut faire attention à ne pas modifier l'objet initial lorsque on évalue un chemin.
 
@@ -78,11 +74,11 @@ Nous avons défini séparément des fonctions redondantes dans notre projet, ell
 
 #### Subfinder
 
-Cette fonction nous permet de trouver un motif dans une liste. Elle est utilisée lors du traitement des boucles par exemple, pour trouver rapidement les motifs qui se répètent, ou pour identifier su une arête à été utilisée dans un chemin.
+Cette fonction nous permet de trouver un motif dans une liste. Elle est utilisée lors du traitement des boucles par exemple, pour trouver rapidement les motifs qui se répètent, ou pour identifier si une arête a été utilisée dans un chemin.
 
 #### Shallow Copy
 
-Python travaille par référence dans certains cas, ce qui nécéssite de devoir créer des copies séparée d'objets. Cans certains cas, le module `copy` ne suffit pas, par exemple pour une liste dans un dictionnaire. Si on copie le dictionnaire avec la fonction `copy`, alors un `list.append()` sur la copie agira quand même sur la fonction originale. Pour pallier à ce problème, on implémente la copie propre d'un dictionnaire.
+Python travaille par référence dans certains cas, ce qui nécéssite de devoir créer des copies séparée d'objets. Cans certains cas, le module `copy` ne suffit pas, par exemple pour une liste dans un dictionnaire. Si on copie le dictionnaire avec la fonction `copy`, alors un `list.append()` dans la copie agira quand même sur l'objet original. Pour pallier à ce problème, on implémente la copie propre et en profondeur d'un dictionnaire.
 
 #### Find Vars, Def et Ref
 
@@ -119,7 +115,7 @@ Un jeu de test T pour Prog satisfait le critère "toutes les affectations", de�
 
 L'idée est de passer par chaque arête d'affectation au moins une fois avec le jeu de test.
 
-Nous avons cherché, parmi les arêtes du graphe, lesquelles étaient étiquetées "assign", puis nous avons généré les chemins induits par chaque ensemble de valeurs initiales du jeu de test, et nous avons cherché les arêtes dans les chemins générés.
+Nous avons cherché, parmi les arêtes du graphe, lesquelles étaient étiquetées `assign`, puis nous avons généré les chemins induits par chaque ensemble de valeurs initiales du jeu de test, et nous avons cherché les arêtes dans les chemins générés.
 
 *Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes d'affectation effectivement empruntées.
 
@@ -129,7 +125,7 @@ Un jeu de test T pour Prog satisfait le critère "toutes les décisions", dé
 
 #### Notre implémentation TD
 
-L'idée est de parcourir le graphe à la recherche d'arêtes de décision. 
+L'idée est de parcourir le graphe à la recherche d'arêtes de décision.
 
 La décision est le résultat de l'évaluation logique des différentes conditions contenues sur l'arête. On peut donc montrer que dans un graphe de contrôle, deux arêtes de décision partant du même noeud sont forcément antinomiques l'une de l'autre. ainsi, le critère "Toutes les décision" peut se ramener à "Pour chaque arête de décision, il existe au moins un chemin de test qui passe par cette arête.
 
@@ -178,7 +174,7 @@ Un jeu de test T pour Prog satisfait le critère "toutes les définitions", de
 
 On commence par chercher dans le graphe tous les noeuds qui définissent une variable. Pour cela, nous avons implémenté une méthode Def retournant les variables définies en une arête. Ensuite, nous cherchons dans les chemins générés par le jeu de test les noeuds précédents. Lorsque nous en trouvons un, nous cherchons dans la suite du chemin un noeud qui référence la variable. Lorsque nous trouvons un tel noeud, nous retirons le noeud de définition de l'ensemble à couvrir.
 
-Remarque : Notons qu'un noeud ne peut définir qu'une seule variable. Ainsi, même si la formulation de l'énoncé est sous la forme "pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}", il est équivalent d'itérer d'abord sur tous les noeuds u de CG(Prog) avec def(u) non vide puis sur les variables (en l'occurence la variable) définies en ce noeud. En fait, il y a une bijection entre l'ensemble des couples (variable définie, noeud définissant la variable) et (noeud définissant une variable, variable qu'il définit), puisqu'il suffit de permuter les deux éléments. Cet ordre sera également utilisé dans les critères suivants.
+**NB:**: Notons qu'un noeud ne peut définir qu'une seule variable. Ainsi, même si la formulation de l'énoncé est sous la forme "pour toutes les variables X de Prog, pour tous les nœuds u de GC(Prog) avec def(u) = {X}", il est équivalent d'itérer d'abord sur tous les noeuds u de CG(Prog) avec def(u) non vide puis sur les variables (en l'occurence la variable) définies en ce noeud. En fait, il y a une bijection entre l'ensemble des couples (variable définie, noeud définissant la variable) et (noeud définissant une variable, variable qu'il définit), puisqu'il suffit de permuter les deux éléments. Cet ordre sera également utilisé dans les critères suivants.
 
 *Pourcentage de couverture :* Le pourcentage de couverture de ce test est la proportion d'arêtes ayant défini une variable dont au moins un chemin de test passe par cette arête et utilise cette variable, par rapport au nombre d'arêtes définissant une variable.
 
@@ -274,6 +270,5 @@ Et :
 1. Se ramener à une `COUVERTURE ENSEMBLE` et chercher le plus petit ensemble de valeurs de test couvrant l'ensemble des éléments à couvrir
 
 Dans le premier cas, on va chercher à résoudre une formule booléenne, c'est moins cher en temps de calcul, mais la génération de cette formule peut être plus longue. Dans le second, on va générer de nombreux chemins, ce qui peut être cher, mais l'algorithme glouton qui suit est polynomial dans le pire des cas. Dans tous les cas, il faudra se restreindre à un espace de recherche, le faire en amont lors de la génération des chemins, ou en aval lors du calcul de satisfaisabilité de la formule booléenne revient fondamentalement à la même chose.
-
 ___
 Karim Lasri - Charles Férault

@@ -7,8 +7,9 @@ Compte rendu du projet d'Introduction à la Vérification Formelle de P. le Gall
 L'intégralité du code source est contenu dans le dosser `/src/`. Les fichiers `main.py` et `requirements.txt` permettent l'utilisation directe du programme avec la commande suivante:
 
 ```bash
-$ pip install -r requirements.txt
-$ python main.py -h
+$ pip install -r requirements.txt #Avec PIP
+$ conda install --yes --file requirements.txt #Avec Conda
+$ python main.py -h #Pour obtenir l'aide
 ```
 
 L'invite de commandes donnera les différentes méthodes utilisables directement en CLI.
@@ -27,7 +28,7 @@ Le tester fonctionne avec les flags suivants:
 * `-gc` ou `--generate-criteria` Generate Criteria: Précise les critères pour lesquels on veut générer des tests. Default=ALL
 * `-gr` ou `--generate-range` Generate Range: Précise le domaine de recherche pour la génération des tests. Default=15
 
-**Exemples**: 
+**Exemples**:
 
 Tester les critères `TA` et `TD` pour x valant -1, 2 ou 5
 
