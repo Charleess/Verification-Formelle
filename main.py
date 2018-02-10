@@ -14,8 +14,12 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("-v", "--version", action="version", version="%(prog)s v1.0")
 parser.add_argument("-d", "--draw-graph", action="store_true", help="draw the graph associated with the program")
-parser.add_argument("-c", "--criteria", type=str, nargs="*", choices=["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"], help="the criteria you want to test")
-parser.add_argument("-t", "--test-set", nargs="+" ,help="the test set you want to use, as a list of dicts, e.g. [{'x': 1}, ...]")
+parser.add_argument("-t", "--test", action="store_true", help="enable criteria testing")
+parser.add_argument("-tc", "--test-criteria", type=str, nargs="*", choices=["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"], help="the criteria to test")
+parser.add_argument("-ts", "--test-set", nargs="+" ,help="the test set, as a list of dicts, e.g. [{'x': 1}, ...]")
+parser.add_argument("-g", "--generate", action="store_true", help="enable tests generation")
+parser.add_argument("-gc", "--generate-criteria", nargs="*", choices=["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"], help="the criteria to generate test-sets for")
+parser.add_argument("-gr", "--generate-range", type=int, help="the range used to look for test sets")
 
 args = parser.parse_args()
 
@@ -34,7 +38,7 @@ def critere_switch(crit, **kwargs):
 
 def generate_tests(graph, critere, elems_to_cover, **kwargs):
     # To simplify, we will hardcode the variables names here.
-    candidates = [{'x': i} for i in range(-10, 10)] # Get candidates for the search
+    candidates = [{'x': i} for i in range(-generate_range, generate_range)] # Get candidates for the search
     elems_to_cover_critere = elems_to_cover[critere] # Elems that need to be covered by the tests
 
     non_covered_elems = [] # We will get the non-covered itemps for each test
@@ -90,19 +94,44 @@ if __name__ == "__main__":
     if args.draw_graph:
         draw_graph(graph) # Draw the graph in a window
 
-    if args.criteria:
-        print("Testing criteria: {}".format(args.criteria))
-        criteria_to_test = args.criteria
-    else:
-        print("No criteria specified, testing all criteria")
-        criteria_to_test = ["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"]
+    ##################
+    # Initialisation #
+    ##################
 
-    if args.test_set:
-        test_set_list = [ast.literal_eval(elem) for elem in args.test_set]
-        print("Test set is: {}".format(test_set_list))
-    else: # Default to range(-15, 15)
-        print("No test set specified, defaulting to range(-15, 15)")
-        test_set_list = [{'x': i} for i in range(-15,15)]
+    if args.test:
+        print("Testing: ON")
+        if args.test_criteria:
+            print("Testing criteria: {}".format(args.test_criteria))
+            criteria_to_test = args.test_criteria
+        else:
+            print("No criteria specified, testing all criteria")
+            criteria_to_test = ["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"]
+
+        if args.test_set:
+            test_set_list = [ast.literal_eval(elem) for elem in args.test_set]
+            print("Test set is: {}".format(test_set_list))
+        else: # Default to range(-15, 15)
+            print("No test set specified, defaulting to range(-15, 15)")
+            test_set_list = [{'x': i} for i in range(-15,15)]
+    else:
+        print("Testing: OFF")
+    
+    if args.generate:
+        print("Generation: ON")
+        if args.generate_criteria:
+            print("Generation criteria: {}".format(args.generate_criteria))
+            criteria_to_generate = args.generate_criteria
+        else:
+            print("No criteria specified, generating all criteria")
+            criteria_to_generate = ["TA", "TD", "k-TC", "i-TB", "TDef", "TU", "TDU", "TC"]
+
+        if args.generate_range:
+            generate_range = args.generate_range
+        else: # Default to range(-15, 15)
+            print("No range specified, defaulting to 15")
+            generate_range = 15
+    else:
+        print("Generation: OFF")
 
 
     elems_to_cover = {}
@@ -110,105 +139,122 @@ if __name__ == "__main__":
     ####################
     # CRITERES DE TEST #
     ####################
+
     print("Démarrage...")
+    elems_to_cover["TA"] = set(elems_to_cover_TA(graph))
+    elems_to_cover["TD"] = set(elems_to_cover_TD(graph))
+    elems_to_cover["k-TC"] = elems_to_cover_k_TC(graph, k=10)
+    elems_to_cover["i-TB"] = elems_to_cover_i_TB(graph, i=10)
+    elems_to_cover["TDef"] = elems_to_cover_TDef(graph)
+    elems_to_cover["TU"] = elems_to_cover_TU(graph)
+    elems_to_cover["TDU"] = elems_to_cover_TDU(graph)
+    elems_to_cover["TC"] = elems_to_cover_TC(graph)
     input("Press any key to continue...")
 
     # EXAMPLE TA
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TA"] = set(elems_to_cover_TA(graph))
-    percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
-    print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TA" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
+        print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE TD
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TD"] = set(elems_to_cover_TD(graph))
-    percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
-    print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TD" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
+        print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE k-TC
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["k-TC"] = elems_to_cover_k_TC(graph, k=10)
-    percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
-    print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "k-TC" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
+        print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE i-TB
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["i-TB"] = elems_to_cover_i_TB(graph, i=10)
-    percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
-    print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "i-TB" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
+        print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE TDef
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TDef"] = elems_to_cover_TDef(graph)
-    percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
-    print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TDef" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
+        print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE TU
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TU"] = elems_to_cover_TU(graph)
-    percentage, non_covered_elems = critere_TU(graph, tests, elems_to_cover["TU"])
-    print("Critere TU: {} % - Elements non couverts (Noeuds): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TU" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TU(graph, tests, elems_to_cover["TU"])
+        print("Critere TU: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE TDU
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TDU"] = elems_to_cover_TDU(graph)
-    percentage, non_covered_elems = critere_TDU(graph, tests, elems_to_cover["TDU"])
-    print("Critere TDU: {} % - Elements non couverts (Noeuds): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TDU" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TDU(graph, tests, elems_to_cover["TDU"])
+        print("Critere TDU: {} % - Elements non couverts (Noeuds): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
     # EXAMPLE TC
-    tests = [copy(test) for test in test_set_list]
-    elems_to_cover["TC"] = elems_to_cover_TC(graph)
-    percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
-    print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
-        percentage,
-        non_covered_elems
-    ))
+    if args.test and "TC" in criteria_to_test:
+        tests = [copy(test) for test in test_set_list]
+        percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
+        print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
+            percentage,
+            non_covered_elems
+        ))
 
-#######################
-# GENERATION DE TESTS #
-#######################
+    #######################
+    # GENERATION DE TESTS #
+    #######################
 
-    a = generate_tests(graph, "TA", elems_to_cover)
-    print("Un jeu de test pour TA est: {}".format(a))
+    if args.generate and "TA" in criteria_to_generate:
+        a = generate_tests(graph, "TA", elems_to_cover)
+        print("Un jeu de test pour TA est: {}".format(a))
 
-    b = generate_tests(graph, "TD", elems_to_cover)
-    print("Un jeu de test pour TD est: {}".format(b))
+    if args.generate and "TD" in criteria_to_generate:
+        b = generate_tests(graph, "TD", elems_to_cover)
+        print("Un jeu de test pour TD est: {}".format(b))
 
-    c = generate_tests(graph, "k-TC", elems_to_cover, k=10)
-    print("Un jeu de test pour k-TC est: {}".format(c))
+    if args.generate and "k-TC" in criteria_to_generate:
+        c = generate_tests(graph, "k-TC", elems_to_cover, k=10)
+        print("Un jeu de test pour k-TC est: {}".format(c))
 
-    d = generate_tests(graph, "i-TB", elems_to_cover, i=1)
-    print("Un jeu de test pour i-TB est: {}".format(d))
+    if args.generate and "i-TB" in criteria_to_generate:
+        d = generate_tests(graph, "i-TB", elems_to_cover, i=1)
+        print("Un jeu de test pour i-TB est: {}".format(d))
 
-    e = generate_tests(graph, "TDef", elems_to_cover)
-    print("Un jeu de test pour TDef est: {}".format(e))
+    if args.generate and "TDef" in criteria_to_generate:
+        e = generate_tests(graph, "TDef", elems_to_cover)
+        print("Un jeu de test pour TDef est: {}".format(e))
 
-    g = generate_tests(graph, "TU", elems_to_cover)
-    print("Un jeu de test pour TU est: {}".format(g))
+    if args.generate and "TU" in criteria_to_generate:
+        g = generate_tests(graph, "TU", elems_to_cover)
+        print("Un jeu de test pour TU est: {}".format(g))
 
-    f = generate_tests(graph, "TDU", elems_to_cover)
-    print("Un jeu de test pour TDU est: {}".format(f))
+    if args.generate and "TDU" in criteria_to_generate:
+        f = generate_tests(graph, "TDU", elems_to_cover)
+        print("Un jeu de test pour TDU est: {}".format(f))
 
-    h = generate_tests(graph, "TC", elems_to_cover)
-    print("Un jeu de test pour TC est: {}".format(h))
+    if args.generate and "TC" in criteria_to_generate:
+        h = generate_tests(graph, "TC", elems_to_cover)
+        print("Un jeu de test pour TC est: {}".format(h))
