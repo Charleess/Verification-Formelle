@@ -62,6 +62,32 @@ def Def(graph, node):
     cond_vars, cmd_vars_assign, cmd_vars_read = find_vars(graph, node)
     return list(set(cmd_vars_assign))
 
+def all_vars(graph):
+    vars_set = set()
+    for node in graph.nodes:
+        vars_list = find_vars(graph, node)
+        for vars in vars_list:
+            vars_set = vars_set.union(vars)
+    return(list(vars_set))
+
+def create_test_set(vars, r):
+    if vars == []:
+        return []
+    elif len(vars) == 1:
+        return [{vars[0] : i} for i in range(-r, r)]
+    else:
+        head = vars[0]
+        tail = vars[1:]
+        partial_result = create_test_set(tail, r)
+        result = []
+        for partial_test in partial_result:
+            for i in range(-r, r):
+                test = partial_test.copy()
+                test.update({head : i})
+                result.append(test)
+        return result
+
+
 ###################
 # Loops and paths #
 ###################
@@ -78,7 +104,7 @@ def is_i_loop(path, loops, i):
     for loop in loops:
         tst.append(len(subfinder(path, loop))) # Append the max number of iterations of this loop
 
-    correct = (max(tst) <= i) # Check if no loop is repeated more than i times
+    correct = (max([0] + tst) <= i) # Check if no loop is repeated more than i times
 
     return correct
 
@@ -102,7 +128,7 @@ def simple_paths(graph, u, v):
     """ Returns the simple paths aka with 1-loops """
     max_node = max(list(graph.nodes)) # Maximum node in the graph, for the limit
     loops = compute_all_loops(graph) # Get all the loops in the graph
-    max_loop_size = max([len(loop) for loop in loops]) # Get the maximum loop size for the limit
+    max_loop_size = max([0] + [len(loop) for loop in loops]) # Get the maximum loop size for the limit
     # Get all the paths starting from u, with maximum limit at 1 iteration per loop + the height of the graph
     all_possible_paths = compute_all_paths(graph, u, limit=max_loop_size * len(loops) + max_node)
 

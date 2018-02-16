@@ -35,7 +35,6 @@ def test_all_conditions(graph, tests, conditions_to_test):
 
     conditions_to_test_tuples = conditions_to_test
     conditions_to_test_tuples = initialize_conditions(conditions_to_test_tuples)
-    print(conditions_to_test_tuples)
 
     conditions_to_test_fix = [(i, j, cond, [copy(a) for a in l], idx) for i, j, cond, l, idx in conditions_to_test_tuples] # For the stats
 
@@ -62,7 +61,7 @@ def critere_TC(graph, tests, conditions_to_test):
     conditions_to_test, conditions_to_test_fix = test_all_conditions(graph, tests, conditions_to_test)
 
     try:
-        res = (1 - len(conditions_to_test) / len(conditions_to_test_fix)) * 100
+        res = (1 - len(conditions_to_test) / max(len(conditions_to_test_fix), 1)) * 100
         return res, conditions_to_test # Stats
     except ValueError:
         return None

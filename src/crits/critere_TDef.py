@@ -43,7 +43,7 @@ def critere_TDef(graph, tests, elems_to_cover):
     def_node_list, successes = test_all_definitions(graph, tests, elems_to_cover)
 
     try:
-        res = (len(successes) / len(def_node_list)) * 100
+        res = (len(successes) / max(len(def_node_list), 1)) * 100
         return res, list(set(def_node_list) - set(successes)) # Statistic
     except ValueError:
         return None

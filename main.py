@@ -4,8 +4,9 @@ import sys
 import ast
 from copy import copy
 import argparse
-from src.programs.prog_1 import create_graph, draw_graph
+from src.programs.progs import create_graph_1, create_graph_2, create_graph_3, draw_graph
 from src.crits.criteres import *
+from src.common import all_vars, create_test_set
 
 # Argument parser for the CLI
 parser = argparse.ArgumentParser(
@@ -38,7 +39,8 @@ def critere_switch(crit, **kwargs):
 
 def generate_tests(graph, critere, elems_to_cover, rang = 15, **kwargs):
     # To simplify, we will hardcode the variables names here.
-    candidates = [{'x': i} for i in range(-rang, rang)] # Get candidates for the search
+    vars = all_vars(graph)
+    candidates = create_test_set(vars, rang) # Get candidates for the search
     elems_to_cover_critere = elems_to_cover[critere] # Elems that need to be covered by the tests
 
     # Transform the elements to cover to a simpler representation (path, list of indices...)
@@ -49,7 +51,7 @@ def generate_tests(graph, critere, elems_to_cover, rang = 15, **kwargs):
     elif critere == "TDU":
         elems_to_cover_critere = get_elems_to_cover_paths(elems_to_cover_critere)
 
-    if type(next(iter(elems_to_cover_critere))) == list:
+    if elems_to_cover_critere == [] or type(next(iter(elems_to_cover_critere))) == list:
         # This is a criterion dealing with unhashable lists, convert to string
         elems_to_cover_set = set("-".join([str(i) for i in path]) for path in elems_to_cover_critere)
     else:
@@ -93,11 +95,10 @@ def generate_tests(graph, critere, elems_to_cover, rang = 15, **kwargs):
         else:
             break
 
-    return test_set, len(total_non_covered)/len(elems_to_cover_critere)
+    return test_set, len(total_non_covered)/max(1, len(elems_to_cover_critere))
 
 if __name__ == "__main__":
-    graph = create_graph() # Initialize the graph for the program 'prog_1'
-
+    graph = create_graph_1() # Initialize the graph for the program 'prog_1'
     ####################
     # SCHEMAS DE PROGS #
     ####################
@@ -122,7 +123,8 @@ if __name__ == "__main__":
             print("Test set is: {}".format(test_set_list))
         else: # Default to range(-15, 15)
             print("No test set specified, defaulting to range(-15, 15)")
-            test_set_list = [{'x': i} for i in range(-15,15)]
+            vars = all_vars(graph)
+            test_set_list = create_test_set(vars, 15)
     else:
         print("Testing: OFF")
     
@@ -163,73 +165,73 @@ if __name__ == "__main__":
 
     # EXAMPLE TA
     if args.test and "TA" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TA(graph, tests, elems_to_cover["TA"])
         print("Critere TA: {} % - Elements non couverts (Noeuds): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE TD
     if args.test and "TD" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TD(graph, tests, elems_to_cover["TD"])
         print("Critere TD: {} % - Elements non couverts (Noeuds): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE k-TC
     if args.test and "k-TC" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_k_TC(graph, tests, elems_to_cover["k-TC"], k=10)
         print("Critere k-TC: {} % - Elements non couverts (Chemins): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE i-TB
     if args.test and "i-TB" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_i_TB(graph, tests, elems_to_cover["i-TB"], i=10)
         print("Critere i-TB: {} % - Elements non couverts (Chemins): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE TDef
     if args.test and "TDef" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TDef(graph, tests, elems_to_cover["TDef"])
         print("Critere TDef: {} % - Elements non couverts (Noeuds): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE TU
     if args.test and "TU" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TU(graph, tests, elems_to_cover["TU"])
         print("Critere TU: {} % - Elements non couverts (Noeuds): {}".format(
-            percentage,
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE TDU
     if args.test and "TDU" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TDU(graph, tests, elems_to_cover["TDU"])
-        print("Critere TDU: {} % - Elements non couverts (Noeuds): {}".format(
-            percentage,
+        print("Critere TDU: {} % - Elements non couverts (Couples de noeuds): {}".format(
+            math.floor(percentage),
             non_covered_elems
         ))
 
     # EXAMPLE TC
     if args.test and "TC" in criteria_to_test:
-        tests = [copy(test) for test in test_set_list]
+        tests = [test.copy() for test in test_set_list]
         percentage, non_covered_elems = critere_TC(graph, tests, elems_to_cover["TC"])
-        print("Critere TC: {} % - Elements non couverts (Conditions): {}".format(
-            percentage,
+        print("Critere TC: {} % - Elements non couverts (Chemins partiels): {}".format(
+            math.floor(percentage),
             non_covered_elems
         ))
 

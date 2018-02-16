@@ -25,7 +25,7 @@ def critere_TA(graph, tests, elems_to_cover):
     assign_nodes, assign_nodes_fix = test_all_affect(graph, tests, elems_to_cover)
 
     try:
-        res = (1 - len(assign_nodes) / len(assign_nodes_fix)) * 100
+        res = (1 - len(assign_nodes) / max(len(assign_nodes_fix), 1)) * 100
         return res, assign_nodes # Stats
     except ValueError:
         return None

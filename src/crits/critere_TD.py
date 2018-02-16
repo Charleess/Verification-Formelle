@@ -28,7 +28,7 @@ def critere_TD(graph, tests, elems_to_cover):
     decision_edges, decision_edges_fix = test_all_decisions(graph, tests, elems_to_cover)
 
     try:
-        res = (1 - len(decision_edges) / len(decision_edges_fix)) * 100
+        res = (1 - len(decision_edges) / max(1,len(decision_edges_fix))) * 100
         return res, decision_edges # Stats
     except ValueError:
         return None

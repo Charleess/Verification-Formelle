@@ -68,7 +68,7 @@ def critere_TU(graph, tests, elems_to_cover):
     """ Main """
     elems_to_cover, elems_not_covered = test_all_usages(graph, tests, elems_to_cover)
     try:
-        res = (1-len(elems_not_covered) / len(elems_to_cover)) * 100
+        res = (1-len(elems_not_covered) / max(len(elems_to_cover), 1)) * 100
         return res, elems_not_covered
     except ValueError:
         return None

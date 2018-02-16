@@ -63,7 +63,7 @@ def critere_TDU(graph, tests, elems_to_cover):
     """ Main """
     paths_to_cover_fix, paths_to_cover = test_all_usages_paths(graph, tests, elems_to_cover)
     try:
-        res = (1 - len(paths_to_cover) / len(paths_to_cover_fix)) * 100
+        res = (1 - len(paths_to_cover) / max(1, len(paths_to_cover_fix))) * 100
         return res, paths_to_cover
     except ValueError:
         return None

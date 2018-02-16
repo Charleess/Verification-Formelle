@@ -35,7 +35,7 @@ def critere_k_TC(graph, tests, elems_to_cover, k=1):
     remaining_paths, total = test_all_k_paths(graph, tests, elems_to_cover, k)
     
     try:
-        res = (1 - (len(remaining_paths) / total)) * 100 # Get the percentage
+        res = (1 - (len(remaining_paths) / max(total, 1))) * 100 # Get the percentage
         return res, remaining_paths
     except ValueError:
         return None

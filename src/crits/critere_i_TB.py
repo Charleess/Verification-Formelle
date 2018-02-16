@@ -6,7 +6,7 @@ def elems_to_cover_i_TB(graph, i=1):
     """ Returns a list of the elements to cover for the criterion """
     max_node = max(list(graph.nodes)) # Max node of the tree to limit the search
     loops = compute_all_loops(graph) # Get all the loops in the tree, if any
-    max_loop_size = max([len(loop) for loop in loops]) # Max loop size is used for the search limit
+    max_loop_size = max([0] + [len(loop) for loop in loops]) # Max loop size is used for the search limit
     all_possible_paths = compute_all_paths(graph, 1, limit=max_loop_size * i * len(loops) + max_node) # Overkill
     # We limit the search to the height of the tree + i iterations of the loops, overshooting
     possible_paths = [path for path in all_possible_paths if path[len(path) - 1] == max_node] # Paths that lead to termination
@@ -39,7 +39,7 @@ def critere_i_TB(graph, tests, elems_to_cover, i=1):
     remaining_paths, total = test_all_i_loops(graph, tests, elems_to_cover, i) # Get the paths that were not ok
 
     try:
-        res = (1 - (len(remaining_paths) / total)) * 100 # Get the percentage
+        res = (1 - (len(remaining_paths) / max(total, 1))) * 100 # Get the percentage
         return res, remaining_paths
     except ValueError:
         return None
